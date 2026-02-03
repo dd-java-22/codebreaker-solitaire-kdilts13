@@ -9,16 +9,16 @@ The sections below describe the complete game lifecycle, expected error handling
 ```mermaid
 flowchart TD
   A([Start App]) --> B[Choose game settings<br/>pool + code length];
-  B --> C["Start new game"];
+  B --> C[Start new game];
   C --> D[Game created<br/>Show rules + empty history];
 
   D --> E[Enter guess];
-  E --> F["Submit guess"];
+  E --> F[Submit guess];
   F --> G[Show feedback<br/>exact + near matches<br/>Add to history];
 
   G --> H{Solved?};
   H -->|"No"| E;
-  H -->|"Yes"| I([Show "Solved!" and final result]);
+  H -->|"Yes"| I([Show Solved and final result]);
   I --> J([Play again / Start new game]);
 
 ```
