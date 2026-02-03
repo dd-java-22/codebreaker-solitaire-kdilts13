@@ -6,6 +6,7 @@ The sections below describe the complete game lifecycle, expected error handling
 
 ## Flowchart
 
+```mermaid
 flowchart TD
 A([App Start]) --> B[Configure New Game<br/>- character pool<br/>- code length]
 B --> C{Start Game}
@@ -34,6 +35,7 @@ J --> L{Next action}
 L -->|New game| B
 L -->|Delete game| M[Delete Game (204)] --> B
 L -->|Exit| Z([Exit])
+```
 
 
 ## Error States & Expected Application Behavior
