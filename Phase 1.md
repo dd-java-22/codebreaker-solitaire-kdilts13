@@ -29,9 +29,9 @@ flowchart TD
 | Scenario | HTTP Status | Likely Cause | User-Facing Message | Application Response |
 |--------|-------------|--------------|---------------------|----------------------|
 | Invalid game configuration | 400 Bad Request | Empty pool, unsupported code length | “Game settings are invalid. Please check the pool and length.” | Highlight invalid fields and allow user to correct input |
-| Game not found | 404 Not Found | Invalid or deleted game ID | “This game could not be found.” | Return user to game setup screen with option to start a new game |
 | Guess with wrong length | 400 Bad Request | Guess length does not match code length | “Your guess must be exactly **N** characters long.” | Preserve input, show error, and allow immediate correction |
 | Guess contains invalid characters | 400 Bad Request | Guess includes characters not in the pool | “Your guess contains characters not in the pool.” | Block submission, identify issue, and allow correction |
+| Game not found | 404 Not Found | Invalid or deleted game ID | “This game could not be found.” | Return user to game setup screen with option to start a new game |
 | Game already solved | 409 Conflict | Guess submitted after solution found | “This game has already been solved.” | Disable guess input and prompt user to start a new game |
 | Network or server failure | 5xx / Network error | Server unavailable or connectivity issue | “Unable to reach the server. Please try again.” | Keep current screen state and offer retry without data loss |
 
