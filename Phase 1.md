@@ -38,11 +38,11 @@ flowchart TD
   K -->|"No"| E
   K -->|"Yes"| J[Show Solved Screen<br/>Reveal final result if available<br/>Disable further guesses]
 
-  J --> L{Next action}
-  L -->|"New game"| B
-  L -->|"Delete game"| M[Delete Game (204)]
-  M --> B
-  L -->|"Exit"| Z([Exit])
+  J --> L{Next action};
+  L -->|"New game"| B;
+  L -->|"Delete game"| M["Delete Game (204)"];
+  M --> B;
+  L -->|"Exit"| Z[Exit];
 ```
 
 
