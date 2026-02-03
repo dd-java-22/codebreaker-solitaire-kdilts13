@@ -8,33 +8,39 @@ The sections below describe the complete game lifecycle, expected error handling
 
 ```mermaid
 flowchart TD
-A([App Start]) --> B[Configure New Game<br/>- character pool<br/>- code length]
-B --> C{Start Game}
+  A([App Start]) --> B[Configure New Game<br/>- character pool<br/>- code length]
+  B --> C{Start Game}
 
-C -->|Success (201)| D[Game Created<br/>Show rules + empty guess history]
-C -->|Invalid config (400)| B1[Show validation error<br/>Highlight invalid fields] --> B
-C -->|Network/Server issue| C1[Show friendly error<br/>Offer Retry] --> C
+  C -->|Success (201)| D[Game Created<br/>Show rules + empty guess history]
+  C -->|Invalid config (400)| B1[Show validation error<br/>Highlight invalid fields]
+  B1 --> B
+  C -->|Network/Server issue| C1[Show friendly error<br/>Offer Retry]
+  C1 --> C
 
-D --> E[Enter Guess]
-E --> F{Pre-validate Input}
-F -->|Wrong length| F1[Show: must be exactly N chars<br/>Keep input] --> E
-F -->|Invalid characters| F2[Show: only characters from pool<br/>Keep input] --> E
-F -->|OK| G[Submit Guess to API]
+  D --> E[Enter Guess]
+  E --> F{Pre-validate Input}
+  F -->|Wrong length| F1[Show: must be exactly N chars<br/>Keep input]
+  F1 --> E
+  F -->|Invalid characters| F2[Show: only characters from pool<br/>Keep input]
+  F2 --> E
+  F -->|OK| G[Submit Guess to API]
 
-G -->|Created (201)| H[Display result<br/>exactMatches + nearMatches<br/>Append to history]
-G -->|Wrong length (400)| F1
-G -->|Game not found (404)| X[Show: game not found<br/>Return to New Game] --> B
-G -->|Already solved (409)| I[Show: game already solved<br/>Disable guess input] --> J
-G -->|Network/Server issue| G1[Show friendly error<br/>Offer Retry] --> G
+  G -->|Created (201)| H[Display result<br/>exactMatches + nearMatches<br/>Append to history]
+  G -->|Wrong length (400)| F1
+  G -->|Game not found (404)| X[Show: game not found<br/>Return to New Game]
+  X --> B
+  G -->|Already solved (409)| I[Show: game already solved<br/>Disable guess input]
+  I --> J
+  G -->|Network/Server issue| G1[Show friendly error<br/>Offer Retry]
+  G1 --> G
 
-H --> K{Solved?}
-K -->|No| E
-K -->|Yes| J[Show Solved Screen<br/>Reveal final result if available<br/>Disable further guesses]
+  H --> K{Solved?}
+  K -->|No| E
+  K -->|Yes| J[Show Solved Screen<br/>Reveal final result if available<br/>Disable further guesses]
 
-J --> L{Next action}
-L -->|New game| B
-L -->|Delete game| M[Delete Game (204)] --> B
-L -->|Exit| Z([Exit])
+  J --> L{Next action}
+  L -->|New game| B
+  L -->|Delete game| M[Delete G]()
 ```
 
 
