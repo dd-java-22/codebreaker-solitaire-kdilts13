@@ -2,7 +2,7 @@
 
 This document captures the Phase 1 design artifacts for a Java-based client of the Codebreaker Solitaire REST API. The focus in this phase is on **requirements and user-facing behavior**, describing *what* the application does from a player’s perspective rather than *how* it is implemented. These artifacts are intentionally implementation-agnostic to support future UI transitions from a console application to JavaFX and Android.
 
-The sections below describe the complete game lifecycle, expected error handling, and user stories that define successful interaction with the system. Together, they establish a shared understanding of gameplay flow, user expectations, and system responsibilities that will inform later phases focused on separation of concerns and class design.
+The sections below describe the complete game lifecycle, including a high-level “happy path” view of normal gameplay, a more detailed flow illustrating error and recovery scenarios, and a set of user stories that define successful interaction with the system. Together, these artifacts establish a shared understanding of gameplay flow, user expectations, and system responsibilities that will inform later phases focused on separation of concerns and class design.
 
 ## Flowchart
 
