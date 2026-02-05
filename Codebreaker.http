@@ -1,0 +1,29 @@
+@baseUrl = https://ddc-java.services/codebreaker-solitaire
+@gameId
+
+### POST to create a game
+POST {{baseUrl}}/games
+Content-Type: application/json
+
+{
+    "pool": "ABCDE",
+    "length": 2
+}
+
+> {%
+  client.global.set("gameId", response.body.id);
+%}
+###
+
+### POST a guess
+POST {{baseUrl}}/games/{{gameId}}/guesses
+Content-Type: application/json
+
+{
+  "text": "CB"
+}
+###
+
+### GET game status
+GET {{baseUrl}}/games/{{gameId}}
+###
