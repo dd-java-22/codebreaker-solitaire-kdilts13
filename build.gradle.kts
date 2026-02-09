@@ -14,11 +14,12 @@
  *  limitations under the License.
  */
 import org.gradle.api.tasks.testing.logging.TestLogEvent
+import org.openapitools.generator.gradle.plugin.tasks.GenerateTask
 
 plugins {
     java
     jacoco
-    id("org.openapi.generator") version "7.2.0"
+    alias(libs.plugins.openapi)
 }
 
 val javaVersion = libs.versions.java.get()
@@ -29,12 +30,6 @@ java {
     }
 }
 
-/**
- * Add OpenAPI-generated sources to the main source set.
- *
- * We generate into build/generated/openapi and compile from there (recommended),
- * rather than generating into the project root or src/main/java directly.
- */
 sourceSets {
     main {
         java {
@@ -44,57 +39,91 @@ sourceSets {
 }
 
 dependencies {
-    implementation(libs.retrofit.core)
-    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
-    implementation("com.squareup.retrofit2:converter-scalars:2.11.0")
 
+    implementation(libs.gson)
+    implementation(libs.retrofit.core)
+    implementation(libs.retrofit.converter.gson)
     implementation(libs.okhttp)
     implementation(libs.logging.interceptor)
-    implementation(libs.gson)
-    implementation("io.gsonfire:gson-fire:1.9.0")
-
-    implementation("javax.annotation:javax.annotation-api:1.3.2")
-    implementation("com.google.code.findbugs:jsr305:3.0.2")
+    implementation(libs.jakarta.annotation)
+    implementation(libs.jakarta.validation)
 
     testImplementation(libs.junit.aggregator)
     testRuntimeOnly(libs.junit.engine)
     testRuntimeOnly(libs.junit.platform)
 }
 
-openApiGenerate {
-    inputSpec.set("$projectDir/openapi.yaml")
-    generatorName.set("java")
+val openApiGenerator = "java"
+val openApiOutDir = layout.buildDirectory.dir("generated/openapi").get().asFile.toString()
+val openApiSpec = "$projectDir/api/codebreaker.yaml"
+val apiPkg = "${properties.get("basePackage")}.service"
+val modelPkg = "${properties.get("basePackage")}.model"
+val openApiCommonOptions = mapOf(
+    "library" to "retrofit2",
+    "serializationLibrary" to "gson",
+    "dateLibrary" to "java8",
+    "useJakartaEe" to "true",
+    "openApiNullable" to "false",
+    "useBeanValidation" to "false"
+)
+val openApiGlobalProperties = mapOf(
+    "models" to "false",
+    "apis" to "false",
+    "supportingFiles" to "false",
+    "apiDocs" to "false",
+    "apiTests" to "false",
+    "modelDocs" to "false",
+    "modelTests" to "false"
+)
 
-    ignoreFileOverride.set("$projectDir/.openapi-generator-ignore")
+tasks.register<GenerateTask>("openApiGenerateModels") {
 
-    apiPackage.set("edu.cnm.deepdive.codebreaker.service")
-    modelPackage.set("edu.cnm.deepdive.codebreaker.model")
-    invokerPackage.set("edu.cnm.deepdive.codebreaker")
+    generatorName = openApiGenerator
+    inputSpec = openApiSpec
+    outputDir = openApiOutDir
+    apiPackage = apiPkg
+    modelPackage = modelPkg
+    ignoreFileOverride = "$projectDir/api/openapi-generator-ignore"
 
-    // IMPORTANT: Do NOT set outputDir to projectDir. Gradle will try to snapshot the whole repo
-    // (including .gradle locks) and fail. Generate into build/ instead.
-    outputDir.set(layout.buildDirectory.dir("generated/openapi").get().asFile.absolutePath)
+    configOptions = openApiCommonOptions + mapOf(
+        "generateBuilders" to "true",
+        "useRecords" to "true"
+    )
 
-    configOptions.set(
-        mapOf(
-            "library" to "retrofit2",
-            "useRecords" to "true",
-            "generateBuilders" to "true",
-            "dateLibrary" to "java8",
-            "openApiNullable" to "false",
-            "generateModelTests" to "true",
-            "generateApiTests" to "true",
-        )
+    globalProperties = openApiGlobalProperties + mapOf(
+        "models" to "",
+        "modelDocs" to "true"
     )
 }
 
-tasks.withType<JavaCompile> {
-    options.release = javaVersion.toInt()
+tasks.register<GenerateTask>("openApiGenerateApis") {
+
+    generatorName = openApiGenerator
+    inputSpec = openApiSpec
+    outputDir = openApiOutDir
+    apiPackage = apiPkg
+    modelPackage = modelPkg
+    ignoreFileOverride = "$projectDir/api/openapi-generator-ignore"
+
+    configOptions = openApiCommonOptions + mapOf(
+        "useTags" to "true"
+    )
+
+    globalProperties = openApiGlobalProperties + mapOf(
+        "apis" to "",
+        "apiDocs" to "true",
+        "supportingFiles" to "CollectionFormats.java,StringUtil.java"
+    )
 }
 
-// Ensure codegen runs before compilation.
-tasks.named("compileJava") {
-    dependsOn(tasks.openApiGenerate)
+tasks.openApiGenerate {
+    enabled = false
+}
+
+tasks.withType<JavaCompile> {
+    dependsOn(tasks.named("openApiGenerateModels"))
+    dependsOn(tasks.named("openApiGenerateApis"))
+    options.release = javaVersion.toInt()
 }
 
 tasks.javadoc {

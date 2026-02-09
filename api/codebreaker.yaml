@@ -12,6 +12,7 @@ paths:
     post:
       summary: Start a new game
       operationId: startGame
+      tags: [Codebreaker]
       requestBody:
         required: true
         content:
@@ -42,6 +43,7 @@ paths:
     get:
       summary: Retrieve a game resource
       operationId: getGame
+      tags: [Codebreaker]
       responses:
         '200':
           description: Specified game returned.
@@ -58,6 +60,7 @@ paths:
     delete:
       summary: Delete a game resource
       operationId: deleteGame
+      tags: [Codebreaker]
       responses:
         '204':
           description: Specified game deleted.
@@ -72,6 +75,7 @@ paths:
     post:
       summary: Submit a new guess for a game
       operationId: submitGuess
+      tags: [Codebreaker]
       parameters:
         - name: gameId
           in: path
@@ -114,6 +118,7 @@ paths:
     get:
       summary: Retrieve a specific guess resource
       operationId: getGuess
+      tags: [Codebreaker]
       parameters:
         - name: gameId
           in: path
