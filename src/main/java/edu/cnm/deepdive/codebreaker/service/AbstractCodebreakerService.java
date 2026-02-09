@@ -5,6 +5,11 @@ import edu.cnm.deepdive.codebreaker.model.Guess;
 import java.util.concurrent.CompletableFuture;
 
 public interface AbstractCodebreakerService {
+
+  static AbstractCodebreakerService getInstance() {
+    return CodebreakerService.getInstance();
+  }
+
   CompletableFuture<Game> startGame(Game game);
   CompletableFuture<Game> getGame(String gameId);
   CompletableFuture<Void> deleteGame(String gameId);

@@ -19,7 +19,7 @@ import okhttp3.logging.HttpLoggingInterceptor.Level;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-enum CobebreakerService implements AbstractCodebreakerService {
+enum CodebreakerService implements AbstractCodebreakerService {
   INSTANCE;
 
   private static final String PROPERTIES_FILE = "service.properties";
@@ -28,7 +28,7 @@ enum CobebreakerService implements AbstractCodebreakerService {
 
   private final CodebreakerApi api;
 
-  CobebreakerService() {
+  CodebreakerService() {
     // TODO: 2/9/2026 Do initialization of GSON, Retrofit, and CodebreakerApi.
     Gson gson = buildGson();
 
@@ -36,6 +36,10 @@ enum CobebreakerService implements AbstractCodebreakerService {
     OkHttpClient client = buildClient(properties);
 
     api = buildApi(properties, gson, client);
+  }
+
+  static CodebreakerService getInstance() {
+    return INSTANCE;
   }
 
   @Override
@@ -91,7 +95,7 @@ enum CobebreakerService implements AbstractCodebreakerService {
     Properties properties = new Properties();
 
     try (InputStream input =
-        CobebreakerService.class.getClassLoader().getResourceAsStream(PROPERTIES_FILE)) {
+        CodebreakerService.class.getClassLoader().getResourceAsStream(PROPERTIES_FILE)) {
 
       properties.load(input);
       return properties;
