@@ -1,2 +1,0 @@
-# We have no auth in this API; don’t generate OAuth helpers.
-**/auth/OAuthOkHttpClient.java
