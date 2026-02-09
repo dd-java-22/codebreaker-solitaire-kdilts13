@@ -32,7 +32,6 @@ enum CodebreakerService implements AbstractCodebreakerService {
   private final CodebreakerApi api;
 
   CodebreakerService() {
-    // TODO: 2/9/2026 Do initialization of GSON, Retrofit, and CodebreakerApi.
     Gson gson = buildGson();
 
     Properties properties = loadProperties();
@@ -52,7 +51,12 @@ enum CodebreakerService implements AbstractCodebreakerService {
     api.startGame(game).enqueue(new Callback<>() {
       @Override
       public void onResponse(Call<Game> call, Response<Game> response) {
-        future.complete(response.body());
+        if (response.isSuccessful()) {
+          future.complete(response.body());
+        } else {
+          // TODO: 2/9/2026 make this specific to error types
+          future.completeExceptionally(new IllegalArgumentException(response.message()));
+        }
       }
 
       @Override

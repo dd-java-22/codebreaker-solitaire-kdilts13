@@ -22,5 +22,6 @@ public class Main {
           throwable.printStackTrace();
           return null;
         });
+    System.out.println("game start requested");
   }
 }
