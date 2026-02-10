@@ -11,9 +11,13 @@ public interface CodebreakerService {
   }
 
   CompletableFuture<Game> startGame(Game game);
-  CompletableFuture<Game> getGame(String gameId);
-  CompletableFuture<Void> deleteGame(String gameId);
 
-  CompletableFuture<Guess> submitGuess(String gameId, Guess guess);
+  CompletableFuture<Game> getGame(String gameId);
+
+  CompletableFuture<Void> delete(String gameId);
+
+  CompletableFuture<Guess> submitGuess(Game game, Guess guess);
+
   CompletableFuture<Guess> getGuess(String gameId, String guessId);
+
 }

@@ -12,49 +12,43 @@ public class Main {
 
   private final BlockingQueue<Game> updateQueue = new LinkedBlockingQueue<>();
   private boolean solved;
+  private Game game;
 
   void main() {
     GameViewModel viewModel = GameViewModel.getInstance();
-
-    viewModel.registerGameObserver((updateQueue::add));
-
+    viewModel.registerGameObserver(updateQueue::add);
     viewModel.registerSolvedObserver((solved) -> this.solved = Boolean.TRUE.equals(solved));
-
-    viewModel.startGame("ABCDEF", 2);
+    viewModel.registerErrorObserver(throwable -> {
+      System.err.println(throwable.toString());
+      updateQueue.add(game);
+    });
+    viewModel.startGame("ABCDE", 2);
 
     BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 
     while (!solved) {
       try {
         Game game = updateQueue.take();
-
-        System.out.println("-------------------------------");
-        System.out.println("Game:");
+        this.game = game;
         System.out.println(game);
-        System.out.println();
-        System.out.println("-------------------------------");
-
         if (solved) {
           System.out.println("You solved it!");
         } else {
           String rawInput;
-
           while ((rawInput = reader.readLine()) != null) {
             String trimmedInput = rawInput.strip();
-
             if (!trimmedInput.isEmpty()) {
               viewModel.submitGuess(trimmedInput);
               break;
             }
           }
         }
-
       } catch (InterruptedException e) {
-        //noinspection CallToPrintStackTrace
         e.printStackTrace();
       } catch (IOException e) {
         throw new RuntimeException(e);
       }
     }
   }
+
 }

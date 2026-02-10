@@ -7,7 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
 
-@SuppressWarnings("UnusedReturnValue")
+@SuppressWarnings({"UnusedReturnValue", "CallToPrintStackTrace"})
 public class GameViewModel {
 
   private final CodebreakerService service;
@@ -23,54 +23,41 @@ public class GameViewModel {
 
   private GameViewModel() {
     service = CodebreakerService.getInstance();
-
     gameObservers = new LinkedList<>();
     guessObservers = new LinkedList<>();
     errorObservers = new LinkedList<>();
     solvedObservers = new LinkedList<>();
   }
 
-  static public GameViewModel getInstance() {
+  public static GameViewModel getInstance() {
     return Holder.INSTANCE;
   }
 
   private Game setGame(Game game) {
     this.game = game;
-
-    gameObservers.forEach((consumer) -> {
-      consumer.accept(game);
-    });
-
+    gameObservers
+        .forEach((consumer) -> consumer.accept(game));
     return game;
   }
 
   private Guess setGuess(Guess guess) {
     this.guess = guess;
-
-    guessObservers.forEach((consumer) -> {
-      consumer.accept(guess);
-    });
-
+    guessObservers
+        .forEach((consumer) -> consumer.accept(guess));
     return guess;
   }
 
   private Throwable setError(Throwable error) {
     this.error = error;
-
-    errorObservers.forEach((consumer) -> {
-      consumer.accept(error);
-    });
-
+    errorObservers
+        .forEach((consumer) -> consumer.accept(error));
     return error;
   }
 
   private Boolean setSolved(Boolean solved) {
     this.solved = solved;
-
-    solvedObservers.forEach(consumer -> {
-      consumer.accept(solved);
-    });
-
+    solvedObservers
+        .forEach((consumer) -> consumer.accept(solved));
     return solved;
   }
 
@@ -79,10 +66,9 @@ public class GameViewModel {
         .pool(pool)
         .length(length)
         .build();
-
     service
         .startGame(game)
-        .thenApply(startedGame -> setGame(startedGame).getSolved())
+        .thenApply((startedGame) -> setGame(startedGame).getSolved())
         .thenAccept(this::setSolved)
         .exceptionally(this::logError);
   }
@@ -90,20 +76,20 @@ public class GameViewModel {
   public void getGame(String gameId) {
     service
         .getGame(gameId)
-        .thenApply(loadedGame -> setGame(loadedGame).getSolved())
+        .thenApply((game) -> setGame(game).getSolved())
         .thenAccept(this::setSolved)
         .exceptionally(this::logError);
   }
 
   public void deleteGame(String gameId) {
     service
-        .deleteGame(gameId)
+        .delete(gameId)
         .exceptionally(this::logError);
   }
 
   public void deleteGame() {
     service
-        .deleteGame(game.getId())
+        .delete(game.getId())
         .thenRun(() -> setGame(null))
         .exceptionally(this::logError);
   }
@@ -112,18 +98,16 @@ public class GameViewModel {
     Guess guess = new Guess.Builder()
         .text(text)
         .build();
-
     service
-        .submitGuess(game.getId(), guess)
+        .submitGuess(game, guess)
         .thenApply(this::setGuess)
-        .thenApply((recievedGuess) -> {
-          setSolved(recievedGuess.getSolution());
-          return recievedGuess;
+        .thenApply((receivedGuess) -> {
+          setSolved(receivedGuess.getSolution());
+          return receivedGuess;
         })
         .thenApply((guessResponse) -> {
           //noinspection DataFlowIssue
           game.getGuesses().add(guessResponse);
-
           return game;
         })
         .thenAccept(this::setGame)
@@ -136,6 +120,8 @@ public class GameViewModel {
         .thenAccept(this::setGuess)
         .exceptionally(this::logError);
   }
+
+// TODO: 2026-02-10 Add methods to get and delete game, submit and get guess.
 
   public void registerGameObserver(Consumer<Game> observer) {
     gameObservers.add(observer);
@@ -156,14 +142,14 @@ public class GameViewModel {
   private Void logError(Throwable error) {
     //noinspection ThrowableNotThrown
     setError(error);
-
-    //noinspection CallToPrintStackTrace
     error.printStackTrace();
-
     return null;
   }
 
   private static class Holder {
+
     static final GameViewModel INSTANCE = new GameViewModel();
+
   }
+
 }
