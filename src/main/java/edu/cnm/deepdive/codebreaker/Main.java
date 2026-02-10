@@ -8,6 +8,8 @@ public class Main {
     GameViewModel viewModel = GameViewModel.getInstance();
 
     viewModel.registerGameObserver(System.out::println);
+    viewModel.registerGuessObserver(System.out::println);
+    viewModel.registerErrorObserver(System.out::println);
 
     viewModel.startGame("ABCDEF", 2);
 
