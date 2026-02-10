@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
 
+@SuppressWarnings("UnusedReturnValue")
 public class GameViewModel {
 
   private final CodebreakerService service;
@@ -18,7 +19,7 @@ public class GameViewModel {
   private Guess guess;
   private Throwable error;
 
-  static GameViewModel getInstance() {
+  static public GameViewModel getInstance() {
     return Holder.INSTANCE;
   }
 
@@ -30,31 +31,65 @@ public class GameViewModel {
     errorObservers = new LinkedList<>();
   }
 
-  public void setGame(Game game) {
+  private Game setGame(Game game) {
     this.game = game;
 
-    gameObservers.forEach((Consumer<Game> consumer) -> {
+    gameObservers.forEach((consumer) -> {
       consumer.accept(game);
     });
+
+    return game;
   }
 
-  public void setGuess(Guess guess) {
+  private Guess setGuess(Guess guess) {
     this.guess = guess;
 
-    guessObservers.forEach((Consumer<Guess> consumer) -> {
+    guessObservers.forEach((consumer) -> {
       consumer.accept(guess);
     });
+
+    return guess;
   }
 
-  public void setError(Throwable error) {
+  private Throwable setError(Throwable error) {
     this.error = error;
 
-    errorObservers.forEach((Consumer<Throwable> consumer) -> {
+    errorObservers.forEach((consumer) -> {
       consumer.accept(error);
     });
+
+    return error;
   }
 
-  // TODO: 2/10/2026 Add game methods
+  public void startGame(String pool, int length) {
+    Game game = new Game.Builder()
+        .pool(pool)
+        .length(length)
+        .build();
+
+    service
+        .startGame(game)
+        .thenAccept(this::setGame)
+        .exceptionally(this::logError);
+  }
+
+  // TODO: 2/10/2026 add methods to get and delete game + submit and get guess
+
+  public void registerGameObserver(Consumer<Game> observer) {
+    gameObservers.add(observer);
+  }
+
+  // TODO: 2/10/2026 add registration methods for guess and error observers
+
+  private Void logError(Throwable error) {
+    //noinspection ThrowableNotThrown
+    setError(error);
+
+    //noinspection CallToPrintStackTrace
+    error.printStackTrace();
+
+    return null;
+  }
 
   private static class Holder {
     static final GameViewModel INSTANCE = new GameViewModel();
