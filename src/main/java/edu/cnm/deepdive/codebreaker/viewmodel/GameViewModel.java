@@ -14,10 +14,12 @@ public class GameViewModel {
   private final List<Consumer<Game>> gameObservers;
   private final List<Consumer<Guess>> guessObservers;
   private final List<Consumer<Throwable>> errorObservers;
+  private final List<Consumer<Boolean>> solvedObservers;
 
   private Game game;
   private Guess guess;
   private Throwable error;
+  private Boolean solved;
 
   private GameViewModel() {
     service = CodebreakerService.getInstance();
@@ -25,6 +27,7 @@ public class GameViewModel {
     gameObservers = new LinkedList<>();
     guessObservers = new LinkedList<>();
     errorObservers = new LinkedList<>();
+    solvedObservers = new LinkedList<>();
   }
 
   static public GameViewModel getInstance() {
@@ -61,6 +64,16 @@ public class GameViewModel {
     return error;
   }
 
+  private Boolean setSolved(Boolean solved) {
+    this.solved = solved;
+
+    solvedObservers.forEach(consumer -> {
+      consumer.accept(solved);
+    });
+
+    return solved;
+  }
+
   public void startGame(String pool, int length) {
     Game game = new Game.Builder()
         .pool(pool)
@@ -69,14 +82,16 @@ public class GameViewModel {
 
     service
         .startGame(game)
-        .thenAccept(this::setGame)
+        .thenApply(startedGame -> setGame(startedGame).getSolved())
+        .thenAccept(this::setSolved)
         .exceptionally(this::logError);
   }
 
   public void getGame(String gameId) {
     service
         .getGame(gameId)
-        .thenAccept(this::setGame)
+        .thenApply(loadedGame -> setGame(loadedGame).getSolved())
+        .thenAccept(this::setSolved)
         .exceptionally(this::logError);
   }
 
@@ -101,9 +116,14 @@ public class GameViewModel {
     service
         .submitGuess(game.getId(), guess)
         .thenApply(this::setGuess)
+        .thenApply((recievedGuess) -> {
+          setSolved(recievedGuess.getSolution());
+          return recievedGuess;
+        })
         .thenApply((guessResponse) -> {
           //noinspection DataFlowIssue
           game.getGuesses().add(guessResponse);
+
           return game;
         })
         .thenAccept(this::setGame)
@@ -127,6 +147,10 @@ public class GameViewModel {
 
   public void registerErrorObserver(Consumer<Throwable> observer) {
     errorObservers.add(observer);
+  }
+
+  public void registerSolvedObserver(Consumer<Boolean> observer) {
+    solvedObservers.add(observer);
   }
 
   private Void logError(Throwable error) {

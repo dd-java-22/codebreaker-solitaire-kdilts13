@@ -2,6 +2,9 @@ package edu.cnm.deepdive.codebreaker;
 
 import edu.cnm.deepdive.codebreaker.model.Game;
 import edu.cnm.deepdive.codebreaker.viewmodel.GameViewModel;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -15,23 +18,17 @@ public class Main {
 
     viewModel.registerGameObserver((updateQueue::add));
 
-    viewModel.registerGuessObserver(System.out::println);
-    viewModel.registerErrorObserver(System.out::println);
+    viewModel.registerSolvedObserver((solved) -> this.solved = Boolean.TRUE.equals(solved));
 
     viewModel.startGame("ABCDEF", 2);
+
+    BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 
     while (!solved) {
       try {
         Game game = updateQueue.take();
 
-        solved = Boolean.TRUE.equals(game.getSolved());
-
         System.out.println("-------------------------------");
-        System.out.println("Guesses:");
-        //noinspection DataFlowIssue
-        game.getGuesses().forEach(System.out::println);
-        System.out.println();
-
         System.out.println("Game:");
         System.out.println(game);
         System.out.println();
@@ -40,13 +37,23 @@ public class Main {
         if (solved) {
           System.out.println("You solved it!");
         } else {
-          // TODO: 2/10/2026 get next guess from user
-          // TODO: 2/10/2026 submit new guess
+          String rawInput;
+
+          while ((rawInput = reader.readLine()) != null) {
+            String trimmedInput = rawInput.strip();
+
+            if (!trimmedInput.isEmpty()) {
+              viewModel.submitGuess(trimmedInput);
+              break;
+            }
+          }
         }
 
       } catch (InterruptedException e) {
         //noinspection CallToPrintStackTrace
         e.printStackTrace();
+      } catch (IOException e) {
+        throw new RuntimeException(e);
       }
     }
   }
