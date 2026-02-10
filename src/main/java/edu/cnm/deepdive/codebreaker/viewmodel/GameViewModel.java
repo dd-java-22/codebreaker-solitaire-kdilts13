@@ -19,16 +19,16 @@ public class GameViewModel {
   private Guess guess;
   private Throwable error;
 
-  static public GameViewModel getInstance() {
-    return Holder.INSTANCE;
-  }
-
   private GameViewModel() {
     service = CodebreakerService.getInstance();
 
     gameObservers = new LinkedList<>();
     guessObservers = new LinkedList<>();
     errorObservers = new LinkedList<>();
+  }
+
+  static public GameViewModel getInstance() {
+    return Holder.INSTANCE;
   }
 
   private Game setGame(Game game) {
