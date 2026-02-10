@@ -16,6 +16,7 @@ import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import okhttp3.logging.HttpLoggingInterceptor.Level;
+import org.jetbrains.annotations.NotNull;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -43,31 +44,24 @@ class CodebreakerServiceImpl implements CodebreakerService {
 
   @Override
   public CompletableFuture<Game> startGame(Game game) {
-    CompletableFuture<Game> future;
-    if (game.getLength() > 0 && game.getPool().length() < 20) {
-      future = new CompletableFuture<>();
-      api
-          .startGame(game)
-          .enqueue(new Callback<>() {
-            @Override
-            public void onResponse(Call<Game> call, Response<Game> response) {
-              if (response.isSuccessful()) {
-                future.complete(response.body());
-              } else {
-                // TODO: 2026-02-09 Make this specific to error types.
-                future.completeExceptionally(new IllegalArgumentException(response.message()));
-              }
-            }
+    return isValidGame(game)
+        ? buildStartGameFuture(game)
+        : CompletableFuture.failedFuture(new IllegalArgumentException());
+  }
 
-            @Override
-            public void onFailure(Call<Game> call, Throwable throwable) {
-              future.completeExceptionally(throwable);
-            }
-          });
-    } else {
-      future = CompletableFuture.failedFuture(new IllegalArgumentException());
-    }
+  @NotNull
+  private CompletableFuture<Game> buildStartGameFuture(Game game) {
+    CompletableFuture<Game> future = new CompletableFuture<>();
+    
+    api
+        .startGame(game)
+        .enqueue(new StartGameCallback(future));
+
     return future;
+  }
+
+  private static boolean isValidGame(Game game) {
+    return game.getLength() > 0 && game.getLength() < 20;
   }
 
   @Override
@@ -232,4 +226,27 @@ class CodebreakerServiceImpl implements CodebreakerService {
 
   }
 
+  private static class StartGameCallback implements Callback<Game> {
+
+    private final CompletableFuture<Game> future;
+
+    public StartGameCallback(CompletableFuture<Game> future) {
+      this.future = future;
+    }
+
+    @Override
+    public void onResponse(Call<Game> call, Response<Game> response) {
+      if (response.isSuccessful()) {
+        future.complete(response.body());
+      } else {
+        // TODO: 2026-02-09 Make this specific to error types.
+        future.completeExceptionally(new IllegalArgumentException(response.message()));
+      }
+    }
+
+    @Override
+    public void onFailure(Call<Game> call, Throwable throwable) {
+      future.completeExceptionally(throwable);
+    }
+  }
 }
