@@ -9,9 +9,13 @@ import edu.cnm.deepdive.codebreaker.model.Game;
 import edu.cnm.deepdive.codebreaker.model.Guess;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.time.OffsetDateTime;
+import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Supplier;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
@@ -28,6 +32,12 @@ class CodebreakerServiceImpl implements CodebreakerService {
   private static final String PROPERTIES_FILE = "service.properties";
   private static final String LOG_LEVEL_KEY = "logLevel";
   private static final String BASE_URL_KEY = "baseUrl";
+
+  private static final Map<Integer, Supplier<Throwable>> CODE_THROWABLE_SUPPLIERS = Map.ofEntries(
+    Map.entry(400, IllegalArgumentException::new),
+    Map.entry(404, NoSuchElementException::new),
+    Map.entry(409, IllegalStateException::new)
+  );
 
   private final CodebreakerApi api;
 
@@ -55,7 +65,7 @@ class CodebreakerServiceImpl implements CodebreakerService {
 
     api
         .getGame(gameId)
-        .enqueue(new GetGameCallback(future));
+        .enqueue(new ServiceCallback<>(future));
 
     return future;
   }
@@ -66,7 +76,7 @@ class CodebreakerServiceImpl implements CodebreakerService {
 
     api
         .deleteGame(gameId)
-        .enqueue(new DeleteGameCallback(future));
+        .enqueue(new ServiceCallback<>(future));
 
     return future;
   }
@@ -83,11 +93,12 @@ class CodebreakerServiceImpl implements CodebreakerService {
     CompletableFuture<Guess> future = new CompletableFuture<>();
 
     api.getGuess(gameId, guessId)
-        .enqueue(new GetGuessCallback(future));
+        .enqueue(new ServiceCallback<>(future));
 
     return future;
   }
 
+  //<editor-fold desc="Validation methods" defaultMode="collapsed">
   private static boolean isValidGame(Game game) {
     boolean isValidLength = game.getLength() > 0 && game.getLength() <= 20;
 
@@ -109,6 +120,7 @@ class CodebreakerServiceImpl implements CodebreakerService {
 
     return isCorrectLength && containsOnlyValidChars;
   }
+  //</editor-fold>
 
   private static Gson buildGson() {
     return new GsonBuilder()
@@ -150,7 +162,7 @@ class CodebreakerServiceImpl implements CodebreakerService {
 
     api
         .startGame(game)
-        .enqueue(new StartGameCallback(future));
+        .enqueue(new ServiceCallback<>(future));
 
     return future;
   }
@@ -161,7 +173,7 @@ class CodebreakerServiceImpl implements CodebreakerService {
     future = new CompletableFuture<>();
 
     api.submitGuess(game.getId(), guess)
-        .enqueue(new SubmitGuessCallback(future));
+        .enqueue(new ServiceCallback<>(future));
     return future;
   }
 
@@ -185,132 +197,28 @@ class CodebreakerServiceImpl implements CodebreakerService {
 
   }
 
-  private static class StartGameCallback implements Callback<Game> {
+  private static class ServiceCallback<T> implements Callback<T> {
+    private final CompletableFuture<T> future;
 
-    private final CompletableFuture<Game> future;
-
-    public StartGameCallback(CompletableFuture<Game> future) {
+    private ServiceCallback(CompletableFuture<T> future) {
       this.future = future;
     }
 
     @Override
-    public void onResponse(Call<Game> call, Response<Game> response) {
+    public void onResponse(Call<T> call, Response<T> response) {
       if (response.isSuccessful()) {
         future.complete(response.body());
       } else {
-        // TODO: 2026-02-09 Make this specific to error types.
-        future.completeExceptionally(new IllegalArgumentException(response.message()));
+        future.completeExceptionally(CODE_THROWABLE_SUPPLIERS.getOrDefault(
+            response.code(),
+            RuntimeException::new
+        ).get());
       }
     }
 
     @Override
-    public void onFailure(Call<Game> call, Throwable throwable) {
-      future.completeExceptionally(throwable);
-    }
-  }
+    public void onFailure(Call<T> call, Throwable throwable) {
 
-  private static class GetGameCallback implements Callback<Game> {
-
-    private final CompletableFuture<Game> future;
-
-    public GetGameCallback(CompletableFuture<Game> future) {
-      this.future = future;
-    }
-
-    @Override
-    public void onResponse(Call<Game> call, Response<Game> response) {
-      if (response.isSuccessful()) {
-        future.complete(response.body());
-      } else {
-        future.completeExceptionally(
-            new IllegalArgumentException("Specified game doesn't exist!"));
-      }
-    }
-
-    @Override
-    public void onFailure(Call<Game> call, Throwable t) {
-      future.completeExceptionally(t);
-    }
-  }
-
-  private static class DeleteGameCallback implements Callback<Void> {
-
-    private final CompletableFuture<Void> future;
-
-    public DeleteGameCallback(CompletableFuture<Void> future) {
-      this.future = future;
-    }
-
-    @Override
-    public void onResponse(Call<Void> call, Response<Void> response) {
-      if (response.isSuccessful()) {
-        future.complete(null);
-      } else {
-        future.completeExceptionally(new IllegalArgumentException("Specified game doesn't exist!"));
-      }
-    }
-
-    @Override
-    public void onFailure(Call<Void> call, Throwable t) {
-      future.completeExceptionally(t);
-    }
-  }
-
-  private static class SubmitGuessCallback implements Callback<Guess> {
-
-    private final CompletableFuture<Guess> future;
-
-    public SubmitGuessCallback(CompletableFuture<Guess> future) {
-      this.future = future;
-    }
-
-    @Override
-    public void onResponse(Call<Guess> call, Response<Guess> response) {
-      if (response.isSuccessful()) {
-        future.complete(response.body());
-      } else {
-        switch (response.code()) {
-          case 400 -> future.completeExceptionally(
-              new IllegalArgumentException("Invalid guess content!"));
-          case 404 -> future.completeExceptionally(
-              new IllegalArgumentException("Game not found!"));
-          default -> future.completeExceptionally(
-              new IllegalArgumentException("Unknown error!"));
-        }
-      }
-    }
-
-    @Override
-    public void onFailure(Call<Guess> call, Throwable t) {
-      future.completeExceptionally(t);
-    }
-  }
-
-  private static class GetGuessCallback implements Callback<Guess> {
-
-    private final CompletableFuture<Guess> future;
-
-    public GetGuessCallback(CompletableFuture<Guess> future) {
-      this.future = future;
-    }
-
-    @Override
-    public void onResponse(Call<Guess> call, Response<Guess> response) {
-      if (response.isSuccessful()) {
-        future.complete(response.body());
-      } else {
-        switch (response.code()) {
-          case 404 -> future.completeExceptionally(
-              new IllegalArgumentException("Game or guess not found!"));
-          default -> future.completeExceptionally(
-              new IllegalArgumentException("Unknown error!"));
-        }
-      }
-    }
-
-    @Override
-    public void onFailure(Call<Guess> call, Throwable t) {
-      future.completeExceptionally(t);
     }
   }
 }
