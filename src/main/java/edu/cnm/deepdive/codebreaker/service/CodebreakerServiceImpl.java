@@ -42,6 +42,52 @@ class CodebreakerServiceImpl implements CodebreakerService {
     return Holder.INSTANCE;
   }
 
+  @Override
+  public CompletableFuture<Game> startGame(Game game) {
+    return isValidGame(game)
+        ? buildStartGameFuture(game)
+        : CompletableFuture.failedFuture(new IllegalArgumentException());
+  }
+
+  @Override
+  public CompletableFuture<Game> getGame(String gameId) {
+    CompletableFuture<Game> future = new CompletableFuture<>();
+
+    api
+        .getGame(gameId)
+        .enqueue(new GetGameCallback(future));
+
+    return future;
+  }
+
+  @Override
+  public CompletableFuture<Void> delete(String gameId) {
+    CompletableFuture<Void> future = new CompletableFuture<>();
+
+    api
+        .deleteGame(gameId)
+        .enqueue(new DeleteGameCallback(future));
+
+    return future;
+  }
+
+  @Override
+  public CompletableFuture<Guess> submitGuess(Game game, Guess guess) {
+    return isValidGuess(game, guess)
+        ? buildSubmitGuessFuture(game, guess)
+        : CompletableFuture.failedFuture(new IllegalArgumentException());
+  }
+
+  @Override
+  public CompletableFuture<Guess> getGuess(String gameId, String guessId) {
+    CompletableFuture<Guess> future = new CompletableFuture<>();
+
+    api.getGuess(gameId, guessId)
+        .enqueue(new GetGuessCallback(future));
+
+    return future;
+  }
+
   private static boolean isValidGame(Game game) {
     boolean isValidLength = game.getLength() > 0 && game.getLength() <= 20;
 
@@ -49,7 +95,7 @@ class CodebreakerServiceImpl implements CodebreakerService {
     // uses valid Unicode characters with no null or unassigned Unicode code points.
     boolean containsOnlyValidChars =
         game.getPool().codePoints()
-        .allMatch(cp -> cp != 0 && Character.isDefined(cp));
+            .allMatch(cp -> cp != 0 && Character.isDefined(cp));
 
     return isValidLength && containsOnlyValidChars;
   }
@@ -96,52 +142,6 @@ class CodebreakerServiceImpl implements CodebreakerService {
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
-  }
-
-  @Override
-  public CompletableFuture<Game> startGame(Game game) {
-    return isValidGame(game)
-        ? buildStartGameFuture(game)
-        : CompletableFuture.failedFuture(new IllegalArgumentException());
-  }
-
-  @Override
-  public CompletableFuture<Game> getGame(String gameId) {
-    CompletableFuture<Game> future = new CompletableFuture<>();
-
-    api
-        .getGame(gameId)
-        .enqueue(new GetGameCallback(future));
-
-    return future;
-  }
-
-  @Override
-  public CompletableFuture<Void> delete(String gameId) {
-    CompletableFuture<Void> future = new CompletableFuture<>();
-
-    api
-        .deleteGame(gameId)
-        .enqueue(new DeleteGameCallback(future));
-
-    return future;
-  }
-
-  @Override
-  public CompletableFuture<Guess> submitGuess(Game game, Guess guess) {
-    return isValidGuess(game, guess)
-        ? buildSubmitGuessFuture(game, guess)
-        : CompletableFuture.failedFuture(new IllegalArgumentException());
-  }
-
-  @Override
-  public CompletableFuture<Guess> getGuess(String gameId, String guessId) {
-    CompletableFuture<Guess> future = new CompletableFuture<>();
-
-    api.getGuess(gameId, guessId)
-        .enqueue(new GetGuessCallback(future));
-
-    return future;
   }
 
   @NotNull
