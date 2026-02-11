@@ -43,7 +43,7 @@ class CodebreakerServiceImpl implements CodebreakerService {
   }
 
   private static boolean isValidGame(Game game) {
-    boolean isValidLength = game.getLength() > 0 && game.getLength() < 20;
+    boolean isValidLength = game.getLength() > 0 && game.getLength() <= 20;
 
     // Used AI to generate the stream logic to check that the pool only
     // uses valid Unicode characters with no null or unassigned Unicode code points.
@@ -111,7 +111,7 @@ class CodebreakerServiceImpl implements CodebreakerService {
 
     api
         .getGame(gameId)
-        .enqueue(new getGameCallback(future));
+        .enqueue(new GetGameCallback(future));
 
     return future;
   }
@@ -122,7 +122,7 @@ class CodebreakerServiceImpl implements CodebreakerService {
 
     api
         .deleteGame(gameId)
-        .enqueue(new deleteGameCallback(future));
+        .enqueue(new DeleteGameCallback(future));
 
     return future;
   }
@@ -139,7 +139,7 @@ class CodebreakerServiceImpl implements CodebreakerService {
     CompletableFuture<Guess> future = new CompletableFuture<>();
 
     api.getGuess(gameId, guessId)
-        .enqueue(new getGuessCallback(future));
+        .enqueue(new GetGuessCallback(future));
 
     return future;
   }
@@ -161,7 +161,7 @@ class CodebreakerServiceImpl implements CodebreakerService {
     future = new CompletableFuture<>();
 
     api.submitGuess(game.getId(), guess)
-        .enqueue(new submitGuessCallback(future));
+        .enqueue(new SubmitGuessCallback(future));
     return future;
   }
 
@@ -209,11 +209,11 @@ class CodebreakerServiceImpl implements CodebreakerService {
     }
   }
 
-  private static class getGameCallback implements Callback<Game> {
+  private static class GetGameCallback implements Callback<Game> {
 
     private final CompletableFuture<Game> future;
 
-    public getGameCallback(CompletableFuture<Game> future) {
+    public GetGameCallback(CompletableFuture<Game> future) {
       this.future = future;
     }
 
@@ -233,11 +233,11 @@ class CodebreakerServiceImpl implements CodebreakerService {
     }
   }
 
-  private static class deleteGameCallback implements Callback<Void> {
+  private static class DeleteGameCallback implements Callback<Void> {
 
     private final CompletableFuture<Void> future;
 
-    public deleteGameCallback(CompletableFuture<Void> future) {
+    public DeleteGameCallback(CompletableFuture<Void> future) {
       this.future = future;
     }
 
@@ -256,11 +256,11 @@ class CodebreakerServiceImpl implements CodebreakerService {
     }
   }
 
-  private static class submitGuessCallback implements Callback<Guess> {
+  private static class SubmitGuessCallback implements Callback<Guess> {
 
     private final CompletableFuture<Guess> future;
 
-    public submitGuessCallback(CompletableFuture<Guess> future) {
+    public SubmitGuessCallback(CompletableFuture<Guess> future) {
       this.future = future;
     }
 
@@ -286,11 +286,11 @@ class CodebreakerServiceImpl implements CodebreakerService {
     }
   }
 
-  private static class getGuessCallback implements Callback<Guess> {
+  private static class GetGuessCallback implements Callback<Guess> {
 
     private final CompletableFuture<Guess> future;
 
-    public getGuessCallback(CompletableFuture<Guess> future) {
+    public GetGuessCallback(CompletableFuture<Guess> future) {
       this.future = future;
     }
 
@@ -310,7 +310,7 @@ class CodebreakerServiceImpl implements CodebreakerService {
 
     @Override
     public void onFailure(Call<Guess> call, Throwable t) {
-
+      future.completeExceptionally(t);
     }
   }
 }
