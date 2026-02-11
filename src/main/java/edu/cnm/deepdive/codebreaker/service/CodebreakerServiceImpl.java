@@ -43,11 +43,25 @@ class CodebreakerServiceImpl implements CodebreakerService {
   }
 
   private static boolean isValidGame(Game game) {
-    return game.getLength() > 0 && game.getLength() < 20;
+    boolean isValidLength = game.getLength() > 0 && game.getLength() < 20;
+
+    // Used AI to generate the stream logic to check that the pool only
+    // uses valid Unicode characters with no null or unassigned Unicode code points.
+    boolean containsOnlyValidChars =
+        game.getPool().codePoints()
+        .allMatch(cp -> cp != 0 && Character.isDefined(cp));
+
+    return isValidLength && containsOnlyValidChars;
   }
 
   private static boolean isValidGuess(Game game, Guess guess) {
-    return guess.getText().length() == game.getLength();
+    boolean isCorrectLength = guess.getText().length() == game.getLength();
+
+    // Used AI to generate the stream logic to check the guess characters
+    boolean containsOnlyValidChars =
+        guess.getText().chars().allMatch(ch -> game.getPool().indexOf(ch) >= 0);
+
+    return isCorrectLength && containsOnlyValidChars;
   }
 
   private static Gson buildGson() {
