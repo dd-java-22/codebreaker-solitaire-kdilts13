@@ -40,6 +40,10 @@
   -fx-border-color: #0078d7;
 }
 
+#guessInput:disabled {
+  -fx-background-color: black;
+}
+
 #send {
   -fx-background-color: #0078d7;
   -fx-background-radius: 3px;

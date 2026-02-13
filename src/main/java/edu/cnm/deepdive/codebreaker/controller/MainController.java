@@ -5,10 +5,15 @@ import edu.cnm.deepdive.codebreaker.viewmodel.GameViewModel;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
+import java.util.Set;
+import java.util.function.UnaryOperator;
+import java.util.stream.Collectors;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextFormatter;
+import javafx.scene.control.TextFormatter.Change;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
@@ -40,10 +45,12 @@ public class MainController {
   @FXML
   private void initialize() throws IOException {
     textFlow
-      .heightProperty()
-      .addListener(
-        (_, _, _) -> { scrollPane.setVvalue(1); }
-      );
+        .heightProperty()
+        .addListener(
+            (_, _, _) -> {
+              scrollPane.setVvalue(1);
+            }
+        );
 
     viewModel = connectToViewModel();
     startGame();
@@ -64,6 +71,11 @@ public class MainController {
     viewModel.registerGameObserver((game) -> {
       this.game = game;
       gameState.setText(game.toString());
+
+      //noinspection DataFlowIssue
+      if (game.getGuesses().isEmpty()) {
+        guessInput.setTextFormatter(new TextFormatter<>(new GuessFilter(game.getPool())));
+      }
     });
 
     viewModel.registerErrorObserver((throwable) -> { /* TODO display or log this throwable */ });
@@ -78,6 +90,41 @@ public class MainController {
       String pool = properties.getProperty(POOL_KEY);
       int length = Integer.parseInt(properties.getProperty(LENGTH_KEY));
       viewModel.startGame(pool, length);
+    }
+  }
+
+  private class GuessFilter implements UnaryOperator<TextFormatter.Change> {
+
+    private final Set<Integer> poolSet;
+
+    GuessFilter(String pool) {
+      poolSet = pool
+          .codePoints()
+          .boxed()
+          .collect(Collectors.toSet());
+    }
+
+    @Override
+    public Change apply(Change change) {
+      if (!change.isDeleted()) {
+        String text = change.getText();
+        int remainingLength =
+            change.getControlText().length() - (change.getRangeEnd() - change.getRangeStart());
+        String filteredText = text
+            .codePoints()
+            .map(Character::toUpperCase)
+            .filter(poolSet::contains)
+            .limit(game.getLength() - remainingLength)
+            .boxed()
+            .reduce(new StringBuilder(), StringBuilder::appendCodePoint, StringBuilder::append)
+            .toString();
+        change.setText(filteredText);
+        change.setCaretPosition(change.getRangeStart() + filteredText.length());
+        send.setDisable(remainingLength + filteredText.length() < game.getLength());
+      } else {
+        send.setDisable(true);
+      }
+      return change;
     }
   }
 }
