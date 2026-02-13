@@ -8,10 +8,20 @@ import java.util.List;
 import java.util.function.Consumer;
 import javafx.application.Platform;
 
-/**
- *
- */
 @SuppressWarnings({"UnusedReturnValue", "CallToPrintStackTrace", "unused"})
+/**
+ * View model coordinating game and guess operations with {@link CodebreakerService} and notifying
+ * registered observers of state changes.
+ *
+ * <p>This type is implemented as a singleton accessible via {@link #getInstance()}.
+ *
+ * <p>Observers are invoked on the JavaFX Application Thread via {@link Platform#runLater(Runnable)}.
+ * When an observer is registered and a corresponding value is already available, the observer is
+ * invoked immediately with the most recently known value.
+ *
+ * <p>Service calls are asynchronous; methods that initiate service work return immediately, and
+ * observers are notified when results arrive.
+ */
 public class GameViewModel {
 
   private final CodebreakerService service;
@@ -34,16 +44,25 @@ public class GameViewModel {
   }
 
   /**
-   * Returns a reference to an instance of the class. This class follows the singleton design
-   * pattern: that is, repeated (or concurrent) calls to this method will all return the same
-   * reference.
+   * Returns the singleton instance of this view model.
    *
-   * @return
+   * @return singleton {@link GameViewModel} instance.
    */
   public static GameViewModel getInstance() {
     return Holder.INSTANCE;
   }
 
+  /**
+   * Starts a new game with the specified pool and code length.
+   *
+   * <p>On success, updates the current game and notifies registered game observers. Also updates
+   * the solved state from the returned game and notifies solved observers.
+   *
+   * <p>On failure, sets the current error and notifies registered error observers.
+   *
+   * @param pool pool of characters used to generate codes for the new game.
+   * @param length required code length for the new game.
+   */
   public void startGame(String pool, int length) {
     Game game = new Game()
         .pool(pool)
@@ -55,6 +74,16 @@ public class GameViewModel {
         .exceptionally(this::logError);
   }
 
+  /**
+   * Retrieves a game by id and updates the current game state.
+   *
+   * <p>On success, updates the current game and notifies registered game observers. Also updates
+   * the solved state from the returned game and notifies solved observers.
+   *
+   * <p>On failure, sets the current error and notifies registered error observers.
+   *
+   * @param gameId identifier of the game to retrieve.
+   */
   public void getGame(String gameId) {
     service
         .getGame(gameId)
@@ -63,12 +92,26 @@ public class GameViewModel {
         .exceptionally(this::logError);
   }
 
+  /**
+   * Deletes a game by id.
+   *
+   * <p>On failure, sets the current error and notifies registered error observers.
+   *
+   * @param gameId identifier of the game to delete.
+   */
   public void deleteGame(String gameId) {
     service
         .deleteGame(gameId)
         .exceptionally(this::logError);
   }
 
+  /**
+   * Deletes the currently loaded game.
+   *
+   * <p>On success, clears the current game and notifies registered game observers with {@code null}.
+   *
+   * <p>On failure, sets the current error and notifies registered error observers.
+   */
   public void deleteGame() {
     service
         .deleteGame(game.getId())
@@ -76,6 +119,17 @@ public class GameViewModel {
         .exceptionally(this::logError);
   }
 
+  /**
+   * Submits a guess for the currently loaded game.
+   *
+   * <p>On success, updates the current guess and notifies registered guess observers. If the
+   * returned guess indicates a solution, refreshes the current game by retrieving it from the
+   * service; otherwise, adds the guess to the current game's guess list and notifies game observers.
+   *
+   * <p>On failure, sets the current error and notifies registered error observers.
+   *
+   * @param text guess text to submit.
+   */
   public void submitGuess(String text) {
     Guess guess = new Guess()
         .text(text);
@@ -94,6 +148,15 @@ public class GameViewModel {
         .exceptionally(this::logError);
   }
 
+  /**
+   * Retrieves a guess by id for the currently loaded game.
+   *
+   * <p>On success, updates the current guess and notifies registered guess observers.
+   *
+   * <p>On failure, sets the current error and notifies registered error observers.
+   *
+   * @param guessId identifier of the guess to retrieve.
+   */
   public void getGuess(String guessId) {
     service
         .getGuess(game.getId(), guessId)
@@ -101,10 +164,21 @@ public class GameViewModel {
         .exceptionally(this::logError);
   }
 
+  /**
+   * Releases resources held by the underlying service client.
+   */
   public void shutdown() {
     service.shutdown();
   }
 
+  /**
+   * Registers an observer that is notified when the current game changes.
+   *
+   * <p>If a current game is already available, the observer is invoked immediately with the
+   * current value.
+   *
+   * @param observer consumer invoked with updated {@link Game} values.
+   */
   public void registerGameObserver(Consumer<Game> observer) {
     gameObservers.add(observer);
     if (game != null) {
@@ -112,6 +186,14 @@ public class GameViewModel {
     }
   }
 
+  /**
+   * Registers an observer that is notified when the current guess changes.
+   *
+   * <p>If a current guess is already available, the observer is invoked immediately with the
+   * current value.
+   *
+   * @param observer consumer invoked with updated {@link Guess} values.
+   */
   public void registerGuessObserver(Consumer<Guess> observer) {
     guessObservers.add(observer);
     if (guess != null) {
@@ -119,6 +201,14 @@ public class GameViewModel {
     }
   }
 
+  /**
+   * Registers an observer that is notified when the solved state changes.
+   *
+   * <p>If a solved state is already available, the observer is invoked immediately with the
+   * current value.
+   *
+   * @param observer consumer invoked with updated solved-state values.
+   */
   public void registerSolvedObserver(Consumer<Boolean> observer) {
     solvedObservers.add(observer);
     if (solved != null) {
@@ -126,6 +216,14 @@ public class GameViewModel {
     }
   }
 
+  /**
+   * Registers an observer that is notified when an error is recorded.
+   *
+   * <p>If an error is already available, the observer is invoked immediately with the current
+   * value.
+   *
+   * @param observer consumer invoked with updated {@link Throwable} values.
+   */
   public void registerErrorObserver(Consumer<Throwable> observer) {
     errorObservers.add(observer);
     if (error != null) {
