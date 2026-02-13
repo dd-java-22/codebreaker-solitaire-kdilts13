@@ -8,6 +8,9 @@ import java.util.List;
 import java.util.function.Consumer;
 import javafx.application.Platform;
 
+/**
+ *
+ */
 @SuppressWarnings({"UnusedReturnValue", "CallToPrintStackTrace", "unused"})
 public class GameViewModel {
 
@@ -30,6 +33,13 @@ public class GameViewModel {
     solvedObservers = new LinkedList<>();
   }
 
+  /**
+   * Returns a reference to an instance of the class. This class follows the singleton design
+   * pattern: that is, repeated (or concurrent) calls to this method will all return the same
+   * reference.
+   *
+   * @return
+   */
   public static GameViewModel getInstance() {
     return Holder.INSTANCE;
   }
