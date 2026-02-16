@@ -8,10 +8,10 @@
   stylesheets="@../styles/styles.css"
   styleClass="palette-button"
 >
-  <Circle
-    fx:id="palletButtonCircle"
-    radius="15"
-  />
-
-  <Text />
+  <graphic>
+    <Circle
+      fx:id="palletButtonCircle"
+      radius="20"
+    />
+  </graphic>
 </Button>
