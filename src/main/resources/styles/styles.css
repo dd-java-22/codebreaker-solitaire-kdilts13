@@ -61,6 +61,7 @@ TilePane#guessPalette {
   -fx-tile-alignment: center;
   -fx-hgap: 16px;
   -fx-vgap: 16px;
+  -fx-padding: 10px;
 }
 
 .palette-button {
@@ -111,4 +112,18 @@ TilePane#guessPalette {
   -fx-fill: violet;
 }
 
+TilePane#guessContainer {
+  -fx-max-height: Infinity;
+  -fx-max-width: Infinity;
+  -fx-alignment: center;
+  -fx-tile-alignment: center;
+  -fx-hgap: 8px;
+  -fx-vgap: 8px;
+  -fx-padding: 8px;
+}
 
+RadioButton.guess-item {
+}
+
+.guess-item {
+}
