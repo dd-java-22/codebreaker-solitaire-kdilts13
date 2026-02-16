@@ -69,6 +69,7 @@ TilePane#guessPalette {
   -fx-padding: 0;
   -fx-background-insets: 0;
   -fx-alignment: center;
+  -fx-content-display: center;
 }
 
 .palette-button > Circle {

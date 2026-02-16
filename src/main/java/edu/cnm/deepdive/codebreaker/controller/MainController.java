@@ -13,7 +13,10 @@ import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
+import java.util.stream.IntStream;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -112,6 +115,15 @@ public class MainController {
     viewModel.registerGameObserver(this::handleGame);
     viewModel.registerErrorObserver((throwable) -> { /* TODO display or log this throwable */ });
 
+    return viewModel;
+  }
+
+  private void handleGame(Game game) {
+    this.game = game;
+    gameState.setText(game.toString());
+    EventHandler<ActionEvent> handler = (event) ->
+        System.out.println(((Node)event.getSource()).getUserData());
+
     ObservableList<Node> children = guessPalette.getChildren();
     children.clear();
 
@@ -127,14 +139,13 @@ public class MainController {
             Labeled node = new FXMLLoader(layoutURL, resources).load();
             node.getStyleClass().add(entry.getValue());
 
-            String name = codePointNames.get(entry.getKey());
-            node.setTooltip(new Tooltip(name));
+            Integer key = entry.getKey();
+            String name = codePointNames.get(key);
 
-            node.setText(new String(
-                name.codePoints().limit(1).toArray(),
-                0,
-                1
-            ));
+            node.addEventHandler(ActionEvent.ACTION, handler);
+            node.setTooltip(new Tooltip(name));
+            node.setText(buildSingleCharacterMnemonicLabel(name));
+            node.setUserData(key);
 
             return node;
           } catch (IOException e) {
@@ -142,13 +153,16 @@ public class MainController {
           }
         })
         .forEach(children::add);
-
-    return viewModel;
   }
 
-  private void handleGame(Game game) {
-    this.game = game;
-    gameState.setText(game.toString());
+  private String buildSingleCharacterMnemonicLabel(String name) {
+    return IntStream.concat(
+            IntStream.of('_'),
+            name.codePoints().limit(1)
+        )
+        .boxed()
+        .reduce(new StringBuilder(), StringBuilder::appendCodePoint, StringBuilder::append)
+        .toString();
   }
 
   private void startGame() throws IOException {
