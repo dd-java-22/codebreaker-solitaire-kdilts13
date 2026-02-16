@@ -60,3 +60,38 @@
   -fx-padding: 0;
   -fx-background-insets: 0;
 }
+
+.palette-button > Circle {
+  -fx-stroke-width: 2;
+  -fx-stroke: black;
+}
+
+.palette-button.red-fill > Circle {
+  -fx-fill: red;
+}
+
+.palette-button.orange-fill > Circle {
+  -fx-fill: orange;
+}
+
+.palette-button.yellow-fill > Circle {
+  -fx-fill: yellow;
+}
+
+.palette-button.green-fill > Circle {
+  -fx-fill: green;
+}
+
+.palette-button.blue-fill > Circle {
+  -fx-fill: blue;
+}
+
+.palette-button.indigo-fill > Circle {
+  -fx-fill: indigo;
+}
+
+.palette-button.violet-fill > Circle {
+  -fx-fill: violet;
+}
+
+

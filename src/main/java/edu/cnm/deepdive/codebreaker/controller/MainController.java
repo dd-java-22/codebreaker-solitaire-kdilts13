@@ -4,7 +4,10 @@ import edu.cnm.deepdive.codebreaker.model.Game;
 import edu.cnm.deepdive.codebreaker.viewmodel.GameViewModel;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Set;
@@ -48,6 +51,8 @@ public class MainController {
 
   private GameViewModel viewModel;
   private Game game;
+  private Map<Integer, String> codePointNames;
+  private Map<Integer, String> codePointClasses;
 
   @FXML
   private void initialize() throws IOException {
@@ -57,16 +62,34 @@ public class MainController {
         .boxed()
         .toList();
 
-    List<String> poolNames = PROPERTY_LIST_DELIMITER.splitAsStream(
+    List<String> poolNames = buildPoolMap("pool_names");
+
+    List<String> poolClasses = buildPoolMap("pool_classes");
+
+    codePointNames = new LinkedHashMap<>();
+    codePointClasses = new LinkedHashMap<>();
+
+    Iterator<Integer> codePointsIter = poolCodePoints.iterator();
+    Iterator<String> namesIter = poolNames.iterator();
+    Iterator<String> classIter = poolClasses.iterator();
+
+    while (codePointsIter.hasNext() && namesIter.hasNext() && classIter.hasNext()) {
+      Integer codePoint = codePointsIter.next();
+      codePointNames.put(codePoint, namesIter.next());
+      codePointClasses.put(codePoint, classIter.next());
+    }
+
+    viewModel = connectToViewModel();
+    startGame();
+  }
+
+  private List<String> buildPoolMap(String key) {
+    return PROPERTY_LIST_DELIMITER.splitAsStream(
             resources
-                .getString("pool_names")
+                .getString(key)
         )
         .filter(Predicate.not(String::isBlank))
         .toList();
-
-//    Map<Integer, String> poolNames =
-    viewModel = connectToViewModel();
-    startGame();
   }
 
   @FXML
