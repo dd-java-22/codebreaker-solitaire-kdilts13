@@ -54,3 +54,9 @@
   -fx-background-color: #1a8ad4;
 }
 
+.palette-button {
+  -fx-background-color: transparent;
+  -fx-border-color: transparent;
+  -fx-padding: 0;
+  -fx-background-insets: 0;
+}
