@@ -30,7 +30,6 @@ import javafx.scene.text.TextFlow;
 
 public class MainController {
 
-  private static final String PROPERTIES_FILE = "game.properties";
   private static final String POOL_KEY = "pool";
   private static final String LENGTH_KEY = "length";
   private static final Pattern PROPERTY_LIST_DELIMITER = Pattern.compile("\\s*,\\s*");
@@ -48,10 +47,13 @@ public class MainController {
   private Text gameState;
 
   @FXML
-  private TilePane guessPalette;
+  private TilePane guessContainer;
 
   @FXML
   private Button send;
+
+  @FXML
+  private TilePane guessPalette;
 
   private GameViewModel viewModel;
   private Game game;
@@ -166,12 +168,8 @@ public class MainController {
   }
 
   private void startGame() throws IOException {
-    try (InputStream input = getClass().getClassLoader().getResourceAsStream(PROPERTIES_FILE)) {
-      Properties properties = new Properties();
-      properties.load(input);
-      String pool = properties.getProperty(POOL_KEY);
-      int length = Integer.parseInt(properties.getProperty(LENGTH_KEY));
-      viewModel.startGame(pool, length);
-    }
+    String pool = resources.getString(POOL_KEY);
+    int length = Integer.parseInt(resources.getString(LENGTH_KEY));
+    viewModel.startGame(pool, length);
   }
 }

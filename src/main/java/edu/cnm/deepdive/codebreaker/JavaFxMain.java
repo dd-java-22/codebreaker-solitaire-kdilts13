@@ -8,13 +8,15 @@ import javafx.stage.Stage;
 
 public class JavaFxMain extends Application {
 
+  private static final String BUNDLE_BASE_NAME = "game";
+
   static void main(String[] args) {
     launch(args);
   }
 
   @Override
   public void start(Stage stage) throws Exception {
-    ResourceBundle bundle = ResourceBundle.getBundle("strings");
+    ResourceBundle bundle = ResourceBundle.getBundle(BUNDLE_BASE_NAME);
 
     ClassLoader classLoader = getClass().getClassLoader();
 
