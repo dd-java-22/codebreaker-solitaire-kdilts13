@@ -9,6 +9,8 @@ import javafx.stage.Stage;
 public class JavaFxMain extends Application {
 
   private static final String BUNDLE_BASE_NAME = "game";
+  public static final String MAIN_LAYOUT = "layouts/main.fxml";
+  public static final String WINDOW_TITLE = "window_title";
 
   static void main(String[] args) {
     launch(args);
@@ -21,13 +23,13 @@ public class JavaFxMain extends Application {
     ClassLoader classLoader = getClass().getClassLoader();
 
     FXMLLoader fxmlLoader = new FXMLLoader(
-        classLoader.getResource("layouts/main.fxml"),
+        classLoader.getResource(MAIN_LAYOUT),
         bundle
     );
 
     Scene scene = new Scene(fxmlLoader.load());
 
-    stage.setTitle(bundle.getString("window_title"));
+    stage.setTitle(bundle.getString(WINDOW_TITLE));
     stage.setScene(scene);
     stage.show();
   }

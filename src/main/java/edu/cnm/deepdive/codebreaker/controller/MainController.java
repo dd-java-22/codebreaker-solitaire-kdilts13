@@ -3,13 +3,11 @@ package edu.cnm.deepdive.codebreaker.controller;
 import edu.cnm.deepdive.codebreaker.model.Game;
 import edu.cnm.deepdive.codebreaker.viewmodel.GameViewModel;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
@@ -33,6 +31,9 @@ public class MainController {
   private static final String POOL_KEY = "pool";
   private static final String LENGTH_KEY = "length";
   private static final Pattern PROPERTY_LIST_DELIMITER = Pattern.compile("\\s*,\\s*");
+  private static final String POOL_NAMES_KEY = "pool_names";
+  private static final String POOL_CLASSES_KEY = "pool_classes";
+  private static final String GUESS_PALETTE_LAYOUT_KEY = "palette_item_layout";
 
   @FXML
   private ResourceBundle resources;
@@ -75,9 +76,9 @@ public class MainController {
         .boxed()
         .toList();
 
-    List<String> poolNames = buildPoolMap("pool_names");
+    List<String> poolNames = buildPoolMap(POOL_NAMES_KEY);
 
-    List<String> poolClasses = buildPoolMap("pool_classes");
+    List<String> poolClasses = buildPoolMap(POOL_CLASSES_KEY);
 
     codePointNames = new LinkedHashMap<>();
     codePointClasses = new LinkedHashMap<>();
@@ -124,14 +125,14 @@ public class MainController {
     this.game = game;
     gameState.setText(game.toString());
     EventHandler<ActionEvent> handler = (event) ->
-        System.out.println(((Node)event.getSource()).getUserData());
+        System.out.println(((Node) event.getSource()).getUserData());
 
     ObservableList<Node> children = guessPalette.getChildren();
     children.clear();
 
     URL layoutURL = getClass()
         .getClassLoader()
-        .getResource(resources.getString("palette_item_layout"));
+        .getResource(resources.getString(GUESS_PALETTE_LAYOUT_KEY));
 
     codePointClasses
         .entrySet()
