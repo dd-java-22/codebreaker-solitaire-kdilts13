@@ -9,8 +9,8 @@ import javafx.stage.Stage;
 public class JavaFxMain extends Application {
 
   private static final String BUNDLE_BASE_NAME = "game";
-  public static final String MAIN_LAYOUT = "layouts/main.fxml";
-  public static final String WINDOW_TITLE = "window_title";
+  private static final String MAIN_LAYOUT = "layouts/main.fxml";
+  private static final String WINDOW_TITLE = "window_title";
 
   static void main(String[] args) {
     launch(args);
