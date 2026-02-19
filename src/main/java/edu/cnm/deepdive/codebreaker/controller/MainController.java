@@ -8,13 +8,13 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.ResourceBundle;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -192,59 +192,70 @@ public class MainController {
   }
 
   private void buildPalette() {
-    EventHandler<ActionEvent> handler = (event) -> {
-      // get the selected toggle
-      ToggleButton button = (ToggleButton) group.getSelectedToggle();
-
-      // set its value to that of the clicked button
-      Integer codePoint = (Integer) ((Node) event.getSource()).getUserData();
-      button.setUserData(codePoint);
-
-      // set its color / style to that of the clicked button
-      ObservableList<String> styleClasses = button.getStyleClass();
-      styleClasses.subList(1, styleClasses.size()).clear();
-      styleClasses.add(codePointClasses.get(codePoint));
-
-      // focus the next radio button if we aren't already on the last one
-      // else return focus to the last radio button to keep arrow key selection working
-      ObservableList<Toggle> toggles = group.getToggles();
-      int position = toggles.indexOf(button);
-
-      if (position < toggles.size() -1) {
-        selectGuessItem(toggles.get(position + 1));
-      } else {
-        button.requestFocus();
-      }
-
-      // disable send button if guess is incomplete
-      updateSend();
-    };
-
     ObservableList<Node> children = guessPalette.getChildren();
+
     children.clear();
 
     codePointClasses
         .entrySet()
         .stream()
-        .map((entry) -> {
-          try {
-            Labeled node = new FXMLLoader(paletteItemUrl, resources).load();
-            node.getStyleClass().add(entry.getValue());
-
-            Integer key = entry.getKey();
-            String name = codePointNames.get(key);
-
-            node.addEventHandler(ActionEvent.ACTION, handler);
-            node.setTooltip(new Tooltip(name));
-            node.setText(buildSingleCharacterMnemonicLabel(name));
-            node.setUserData(key);
-
-            return node;
-          } catch (IOException e) {
-            throw new RuntimeException(e);
-          }
-        })
+        .map(this::buildPaletteItem)
         .forEach(children::add);
+  }
+
+  private Labeled buildPaletteItem(Entry<Integer, String> entry) {
+    try {
+      Labeled node = new FXMLLoader(paletteItemUrl, resources).load();
+      Integer key = entry.getKey();
+      String name = codePointNames.get(key);
+
+      node.getStyleClass().add(entry.getValue());
+      node.addEventHandler(ActionEvent.ACTION, this::handlePaletteSelection);
+      node.setTooltip(new Tooltip(name));
+      node.setText(buildSingleCharacterMnemonicLabel(name));
+      node.setUserData(key);
+
+      return node;
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  private void handlePaletteSelection(ActionEvent event) {
+    ToggleButton button = updateGuessItem(event);
+
+    advanceSelectedItem(button);
+
+    // disable send button if guess is incomplete
+    updateSend();
+  }
+
+  private void advanceSelectedItem(ToggleButton button) {
+    // focus the next radio button if we aren't already on the last one
+    // else return focus to the last radio button to keep arrow key selection working
+    ObservableList<Toggle> toggles = group.getToggles();
+    int position = toggles.indexOf(button);
+
+    if (position < toggles.size() - 1) {
+      selectGuessItem(toggles.get(position + 1));
+    } else {
+      button.requestFocus();
+    }
+  }
+
+  private ToggleButton updateGuessItem(ActionEvent event) {
+    // get the selected toggle
+    ToggleButton button = (ToggleButton) group.getSelectedToggle();
+
+    // set its value to that of the clicked button
+    Integer codePoint = (Integer) ((Node) event.getSource()).getUserData();
+    button.setUserData(codePoint);
+
+    // set its color / style to that of the clicked button
+    ObservableList<String> styleClasses = button.getStyleClass();
+    styleClasses.subList(1, styleClasses.size()).clear();
+    styleClasses.add(codePointClasses.get(codePoint));
+    return button;
   }
 
   private void updateSend() {
