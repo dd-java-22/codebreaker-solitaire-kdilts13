@@ -1,0 +1,29 @@
+<!--<svg-->
+<!--  xmlns="http://www.w3.org/2000/svg"-->
+<!--  width="100"-->
+<!--  height="100"-->
+<!--&gt;-->
+<!--  <path-->
+<!--    stroke="black"-->
+<!--    fill="blue"-->
+<!--    d="M 0,50-->
+<!--    a 50,50 0 1,0 100,0-->
+<!--    a 50,50 0 1,0 -100,0-->
+<!--    z-->
+
+<!--    M 50,0-->
+<!--    l 43.301,75-->
+<!--    l -86.602,0-->
+<!--    Z"-->
+<!--  />-->
+<!--</svg>-->
+
+<!--70.7-->
+
+<svg xmlns="http://www.w3.org/2000/svg"
+viewBox="0 0 161 139"
+width="161" height="139">
+<!-- bottom-left glyph (extracted as two filled components) -->
+<path fill="black" d="M 137 15 L 106 15 L 74 45 L 12 114 L 50 114 L 70 92 L 93 92 L 95 115 L 138 114 L 139 76 L 74 77 L 71 75 L 77 68 L 131 68 L 131 50 L 100 50 Z"/>
+<path fill="black" d="M 79 15 L 49 15 L 18 55 L 16 70 L 41 70 L 79 27 Z"/>
+</svg>
