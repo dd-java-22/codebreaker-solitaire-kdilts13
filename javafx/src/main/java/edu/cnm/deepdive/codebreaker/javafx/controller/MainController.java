@@ -44,7 +44,7 @@ import javafx.scene.layout.TilePane;
  * history. It coordinates with the {@link GameViewModel} to process user guesses and respond to
  * game state changes.
  */
-public class MainController {
+public class MainController implements Stoppable {
 
   private static final String POOL_KEY = "pool";
   private static final String LENGTH_KEY = "length";
@@ -70,8 +70,6 @@ public class MainController {
   private URL paletteItemUrl;
   private URL guessItemUrl;
   private ToggleGroup group;
-
-  // TODO: Add shutdown method, simply invokes viewModel.shutdown().
 
   /**
    * Initializes the controller after autowiring (to the nodes instantiated from the FXML layout by
@@ -101,6 +99,11 @@ public class MainController {
           .toString();
 
       viewModel.submitGuess(guessText);
+  }
+
+  @Override
+  public void shutdown() {
+    viewModel.shutdown();
   }
 
   private void loadGameProperties() {
