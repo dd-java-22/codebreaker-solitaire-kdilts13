@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.stream.IntStream;
+import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -55,6 +56,8 @@ public class MainController implements Stoppable {
   @FXML
   private ResourceBundle resources;
   @FXML
+  private Button newGame;
+  @FXML
   private ListView<Guess> guessHistory;
   @FXML
   private TilePane guessContainer;
@@ -82,6 +85,11 @@ public class MainController implements Stoppable {
     loadGameProperties();
     connectToViewModel();
     startGame();
+  }
+
+  @FXML
+  protected void startGame() {
+    viewModel.startGame(pool, length);
   }
 
   /**
@@ -119,10 +127,6 @@ public class MainController implements Stoppable {
     viewModel.registerErrorObserver((throwable) -> { /* TODO Display or log this throwable. */ });
   }
 
-  private void startGame() {
-    viewModel.startGame(pool, length);
-  }
-
   private void handleGame(Game game) {
     // TODO: Add logic to handle null game reference (e.g., after deleting current game).
     this.game = game;
@@ -139,6 +143,7 @@ public class MainController implements Stoppable {
     guessHistory.getItems().clear();
     //noinspection DataFlowIssue
     guessHistory.getItems().addAll(game.getGuesses());
+    Platform.runLater(() -> guessHistory.scrollTo(game.getGuesses().size() - 1));
   }
 
   private void buildPalette() {

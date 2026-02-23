@@ -33,6 +33,7 @@ GridPane.root {
   -fx-border-color: #0078d7;
 }
 
+
 #send {
   -fx-background-color: #0078d7;
   -fx-background-radius: 3px;
@@ -172,8 +173,23 @@ GridPane.root {
   -fx-max-height: 48px;
   -fx-max-width: Infinity;
   -fx-alignment: center;
-  -fx-padding: 0;
+  -fx-padding: 5px;
+  -fx-background-insets: 5px 5px 5px 5px;
+  -fx-shape: "M 92,0 h 8, L 10,100 h -8 z";
+  -fx-background-color: #404040;
+}
 
+#exactCount, #nearCount {
+  -fx-font-size: 16px;
+  -fx-font-weight: 700;
+}
+
+#exactCount {
+  -fx-fill: green;
+}
+
+#nearCount {
+  -fx-fill: orange;
 }
 
 /* TODO: Refine shape definitions. */
