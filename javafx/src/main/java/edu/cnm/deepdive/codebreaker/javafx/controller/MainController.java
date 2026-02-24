@@ -162,7 +162,8 @@ public class MainController implements Stoppable {
   }
 
   private void updateSend() {
-    boolean sendDisabled = group
+    boolean sendDisabled = Boolean.TRUE.equals(game.getSolved())
+        || group
         .getToggles()
         .stream()
         .anyMatch((toggle) -> ((ToggleButton) toggle).getUserData() == null);
@@ -250,6 +251,7 @@ public class MainController implements Stoppable {
       if (styleClass != null) {
         button.getStyleClass().add(styleClass);
         button.setUserData(lastGuess[i]);
+        button.setText("B");
         // TODO: Set text of button to first character (without mnemonic) of name for the code point.
       }
       return button;
