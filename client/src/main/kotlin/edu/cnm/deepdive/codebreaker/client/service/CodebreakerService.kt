@@ -32,7 +32,7 @@ interface CodebreakerService {
      * @param gameId The unique identifier of the game to be deleted.
      * @return A [CompletableFuture] that will complete when the game has been deleted.
      */
-    fun deleteGame(gameId: String?): CompletableFuture<Void?>
+    fun deleteGame(gameId: String): CompletableFuture<Void?>
 
     /**
      * Submits a guess for the specified game.
