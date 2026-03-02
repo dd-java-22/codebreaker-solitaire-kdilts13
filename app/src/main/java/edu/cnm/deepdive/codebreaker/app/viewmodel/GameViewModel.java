@@ -31,31 +31,66 @@ public class GameViewModel extends ViewModel {
     guess = new MutableLiveData<>();
     error = new MutableLiveData<>();
 
-    solved = Transformations.map(game, Game::getSolved);
+    solved = Transformations.distinctUntilChanged(
+      Transformations.map(
+        game,
+        Game::getSolved
+      )
+    );
   }
 
   public void startGame(String pool, int length) {
     Game game = new Game().pool(pool).length(length);
 
     service.startGame(game)
-        .thenAccept(this.game::postValue)
-        .exceptionally(this::postThrowable);
+      .thenAccept(this.game::postValue)
+      .exceptionally(this::postThrowable);
   }
 
   public void getGame(String gameId) {
-    throw new UnsupportedOperationException("Not yet implemented");
+    service.getGame(gameId)
+      .thenAccept(this.game::postValue)
+      .exceptionally(this::postThrowable);
   }
 
-  public void deleteGame(String gameId) {
-    throw new UnsupportedOperationException("Not yet implemented");
+  public void deleteGame() {
+    Game game = this.game.getValue();
+    this.game.setValue(null);
+
+    if (game != null) {
+      service.deleteGame(game.getId())
+        .exceptionally(this::postThrowable);
+    }
   }
 
   public void getGuess(String guessId) {
-    throw new UnsupportedOperationException("Not yet implemented");
+    Game game = this.game.getValue();
+
+    //noinspection DataFlowIssue
+    service.getGuess(game.getId(), guessId)
+      .thenAccept(this.guess::postValue)
+      .exceptionally(this::postThrowable);
   }
 
-  public void submitGuess(String guess) {
-    throw new UnsupportedOperationException("Not yet implemented");
+  @SuppressWarnings("DataFlowIssue")
+  public void submitGuess(String guessText) {
+    Guess guess = new Guess().text(guessText);
+    Game game = this.game.getValue();
+
+    service.submitGuess(game, guess)
+      .thenApply(g -> {
+        this.guess.postValue(g);
+        return g;
+      })
+      .thenAccept(g -> {
+        if (Boolean.TRUE.equals(g.getSolution())) {
+          getGame(game.getId());
+        } else {
+          game.getGuesses().add(g);
+          this.game.postValue(game);
+        }
+      })
+      .exceptionally(this::postThrowable);
   }
 
   public LiveData<Game> getGame() {
