@@ -2,8 +2,12 @@ package edu.cnm.deepdive.codebreaker.app.controller;
 
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 import dagger.hilt.android.AndroidEntryPoint;
 import edu.cnm.deepdive.codebreaker.app.databinding.ActivityMainBinding;
+import edu.cnm.deepdive.codebreaker.app.model.Game;
+import edu.cnm.deepdive.codebreaker.app.viewmodel.GameViewModel;
+import edu.cnm.deepdive.codebreaker.client.service.CodebreakerService;
 
 @AndroidEntryPoint
 public class MainActivity extends AppCompatActivity {
@@ -15,6 +19,14 @@ public class MainActivity extends AppCompatActivity {
     super.onCreate(savedInstanceState);
     binding = ActivityMainBinding.inflate(getLayoutInflater());
     setContentView(binding.getRoot());
+
+    GameViewModel viewModel = new ViewModelProvider(this).get(GameViewModel.class);
+
+    viewModel
+      .getGame()
+      .observe(this, (game) -> binding.response.setText(game.toString()));
+
+    binding.tests.setOnClickListener((view) -> viewModel.startGame("ABCDEF", 6));
   }
 
 }
