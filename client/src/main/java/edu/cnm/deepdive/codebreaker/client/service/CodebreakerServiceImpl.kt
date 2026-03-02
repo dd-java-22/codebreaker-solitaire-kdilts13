@@ -84,31 +84,31 @@ internal object CodebreakerServiceImpl : CodebreakerService {
 
     private fun buildStartGameFuture(game: Game): CompletableFuture<Game> {
         return CompletableFuture<Game>().apply {
-            api.startGame(game).enqueue(ServiceCallback<Game>(this))
+            api.startGame(game).enqueue(ServiceCallback(this))
         }
     }
 
     private fun buildGetGameFuture(gameId: String): CompletableFuture<Game> {
         return CompletableFuture<Game>().apply {
-            api.getGame(gameId).enqueue(ServiceCallback<Game>(this))
+            api.getGame(gameId).enqueue(ServiceCallback(this))
         }
     }
 
     private fun buildDeleteGameFuture(gameId: String): CompletableFuture<Void?> {
         return CompletableFuture<Void?>().apply {
-            api.deleteGame(gameId).enqueue(ServiceCallback<Void?>(this))
+            api.deleteGame(gameId).enqueue(ServiceCallback(this))
         }
     }
 
     private fun buildSubmitGuessFuture(game: Game, guess: Guess): CompletableFuture<Guess> {
         return CompletableFuture<Guess>().apply {
-            api.submitGuess(game.getId(), guess).enqueue(ServiceCallback<Guess>(this))
+            api.submitGuess(game.id, guess).enqueue(ServiceCallback(this))
         }
     }
 
     private fun buildGetGuessFuture(gameId: String, guessId: String): CompletableFuture<Guess> {
         return CompletableFuture<Guess>().apply {
-            api.getGuess(gameId, guessId).enqueue(ServiceCallback<Guess>(this))
+            api.getGuess(gameId, guessId).enqueue(ServiceCallback(this))
         }
     }
 }
@@ -127,7 +127,7 @@ private class OffsetDateTimeAdapter : TypeAdapter<OffsetDateTime?>() {
 
 private class ServiceCallback<T>(private val future: CompletableFuture<T>) : Callback<T> {
     override fun onResponse(call: Call<T>, response: Response<T>) {
-        val future = this.future;
+        val future = this.future
         if (response.isSuccessful) {
             future.complete(response.body())
         } else {
@@ -211,12 +211,12 @@ private fun isValidGame(game: Game): Boolean {
     return codeLength in MIN_CODE_LENGTH..MAX_CODE_LENGTH
             && poolLength in MIN_POOL_LENGTH..MAX_POOL_LENGTH
             && pool.codePoints()
-        .allMatch({ codePoint: Int ->
+        .allMatch { codePoint: Int ->
             Character.isDefined(codePoint)
                     && !Character.isWhitespace(codePoint) && !Character.isISOControl(
                 codePoint
             )
-        })
+        }
 }
 
 private fun isValidGuess(game: Game, guess: Guess): Boolean {
@@ -232,7 +232,7 @@ private fun isValidGuess(game: Game, guess: Guess): Boolean {
         valid = guess
             .text
             .codePoints()
-            .allMatch({ o: Int -> poolCodePoints.contains(o) })
+            .allMatch { o: Int -> poolCodePoints.contains(o) }
     }
     return valid
 }
