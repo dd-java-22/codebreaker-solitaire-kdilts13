@@ -218,19 +218,17 @@ private fun isValidGame(game: Game): Boolean {
 }
 
 private fun isValidGuess(game: Game, guess: Guess): Boolean {
-  var valid: Boolean
-  if (guess.text.length != game.length) {
-    valid = false
+  return if (guess.text.length != game.length) {
+    false
   } else {
     val poolCodePoints = game
       .pool
       .codePoints()
       .boxed()
       .collect(Collectors.toSet())
-    valid = guess
-      .text
+
+    guess.text
       .codePoints()
       .allMatch { poolCodePoints.contains(it) }
   }
-  return valid
 }
