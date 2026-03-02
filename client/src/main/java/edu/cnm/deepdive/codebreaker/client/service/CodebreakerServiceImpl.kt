@@ -33,9 +33,8 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.IOException
 import java.time.OffsetDateTime
-import java.util.Properties
+import java.util.*
 import java.util.concurrent.CompletableFuture
-import java.util.function.IntPredicate
 import java.util.function.Supplier
 import java.util.stream.Collectors
 
@@ -195,7 +194,7 @@ private fun buildClient(properties: Properties): OkHttpClient {
 private fun buildApi(
     properties: Properties,
     gson: Gson,
-    client: OkHttpClient
+    @Suppress("SameParameterValue") client: OkHttpClient
 ): CodebreakerApi {
     return Retrofit.Builder()
         .baseUrl(properties.getProperty(BASE_URL_KEY))
@@ -212,7 +211,7 @@ private fun isValidGame(game: Game): Boolean {
     return codeLength in MIN_CODE_LENGTH..MAX_CODE_LENGTH
             && poolLength in MIN_POOL_LENGTH..MAX_POOL_LENGTH
             && pool.codePoints()
-        .allMatch(IntPredicate { codePoint: Int ->
+        .allMatch({ codePoint: Int ->
             Character.isDefined(codePoint)
                     && !Character.isWhitespace(codePoint) && !Character.isISOControl(
                 codePoint
@@ -221,7 +220,7 @@ private fun isValidGame(game: Game): Boolean {
 }
 
 private fun isValidGuess(game: Game, guess: Guess): Boolean {
-    var valid = true
+    var valid: Boolean
     if (guess.text.length != game.length) {
         valid = false
     } else {
@@ -233,7 +232,7 @@ private fun isValidGuess(game: Game, guess: Guess): Boolean {
         valid = guess
             .text
             .codePoints()
-            .allMatch(IntPredicate { o: Int -> poolCodePoints.contains(o) })
+            .allMatch({ o: Int -> poolCodePoints.contains(o) })
     }
     return valid
 }
