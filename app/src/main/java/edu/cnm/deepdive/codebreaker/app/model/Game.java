@@ -23,18 +23,18 @@ public class Game {
 
   @NonNull
   @ColumnInfo(name = "external_id")
-  private String externalId;
+  private String externalId = "";
 
   @NonNull
   @ColumnInfo(name = "pool")
-  private String pool;
+  private String pool = "";
 
   @ColumnInfo(name = "length")
   private int length;
 
   @NonNull
   @ColumnInfo(name = "started")
-  private Instant started;
+  private Instant started = Instant.now();
 
   @ColumnInfo(name = "guess_count")
   private int guessCount;
