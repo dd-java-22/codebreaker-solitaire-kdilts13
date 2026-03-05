@@ -12,8 +12,10 @@ class SymbolMap @Inject constructor(
   @param:ActivityContext private val context: Context
 ) {
 
+  private val symbols: Map<Int, SymbolAttributes>
+
   init {
-    val name = context.resources.getStringArray(R.array.color_names)
+    val names = context.resources.getStringArray(R.array.color_names)
     val keys = context.resources.getStringArray(R.array.color_keys)
 
     val valuesTyped = context.resources.obtainTypedArray(R.array.color_values)
@@ -31,5 +33,22 @@ class SymbolMap @Inject constructor(
       val drawable = ContextCompat.getDrawable(context, drawablesIds[i]) as Drawable
       drawables.add(drawable)
     }
+
+    symbols = keys
+      .zip(names) { key, name -> key to name }
+      .zip(values) { (key, name), value -> Triple(key, name, value) }
+      .zip(drawables) { (key, name, value), drawable ->
+        key.codePointAt(0) to SymbolAttributes(value, name, drawable)
+      }
+      .toMap()
+
+    valuesTyped.recycle()
   }
+
+  private data class SymbolAttributes(
+    val value: Int,
+    val name: String,
+    val drawable: Drawable
+  )
+
 }
