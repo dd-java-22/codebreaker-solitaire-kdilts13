@@ -21,7 +21,7 @@ class SymbolMap @Inject constructor(
     val values = getColors(R.array.color_values)
     val drawables = getDrawables(R.array.color_drawables)
 
-    symbols = keys.indices.associate { i ->
+    symbols = keys.indices.associateTo(LinkedHashMap()) { i ->
       keys[i].codePointAt(0) to SymbolAttributes(values[i], names[i], drawables[i])
     }
   }
