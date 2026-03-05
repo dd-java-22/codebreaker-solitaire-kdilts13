@@ -21,59 +21,41 @@
         android:layout_height="0dp"
         android:padding="8dp"
         android:clipToPadding="false"
-        android:scrollbars="vertical"
+        android:orientation="vertical"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        app:layout_constraintHeight_percent="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/new_game" />
+        app:layout_constraintTop_toBottomOf="@id/new_game"
+      app:layout_constraintBottom_toTopOf="@id/current_guess_display"/>
 
-    <HorizontalScrollView
-        android:id="@+id/current_guess_container"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:padding="8dp"
-        app:layout_constraintHeight_percent="0.25"
-        app:layout_constraintHorizontal_weight="7"
+    <LinearLayout
+        android:id="@+id/current_guess_display"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/submit"
-        app:layout_constraintTop_toBottomOf="@id/guess_history">
-
-        <LinearLayout
-            android:id="@+id/current_guess_display"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:orientation="horizontal"
-            android:gravity="center_vertical" />
-
-    </HorizontalScrollView>
+      app:layout_constraintEnd_toStartOf="@id/submit"
+      app:layout_constraintBottom_toTopOf="@id/palette"
+      />
 
     <Button
         android:id="@+id/submit"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
         android:text="@string/submit_label"
-        app:layout_constraintHorizontal_weight="1"
-        app:layout_constraintStart_toEndOf="@id/current_guess_container"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/current_guess_container"
-        app:layout_constraintBottom_toBottomOf="@id/current_guess_container" />
+        app:layout_constraintBottom_toTopOf="@id/palette"
+         />
 
-    <HorizontalScrollView
-        android:id="@+id/palette_container"
-        android:layout_width="0dp"
+    <LinearLayout
+        android:id="@+id/palette"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="8dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent">
-
-        <LinearLayout
-            android:id="@+id/palette"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal" />
-
-    </HorizontalScrollView>
+      />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
