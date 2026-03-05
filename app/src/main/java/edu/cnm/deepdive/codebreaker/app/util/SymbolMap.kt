@@ -7,6 +7,7 @@ import androidx.core.content.ContextCompat
 import dagger.hilt.android.qualifiers.ActivityContext
 import edu.cnm.deepdive.codebreaker.app.R
 import jakarta.inject.Inject
+import java.util.Collections
 
 class SymbolMap @Inject constructor(
   @param:ActivityContext private val context: Context
@@ -24,6 +25,29 @@ class SymbolMap @Inject constructor(
       keys[i].codePointAt(0) to SymbolAttributes(values[i], names[i], drawables[i])
     }
   }
+
+  /**
+   * Returns an unmodifiable list of the symbol key codepoints.
+   */
+  fun getKeys(): List<Int> = Collections.unmodifiableList(symbols.keys.toList())
+
+  /**
+   * Returns the color value associated with the specified key codepoint.
+   * @throws NoSuchElementException if the key is not found.
+   */
+  fun getColor(key: Int): Int = (symbols[key] ?: throw NoSuchElementException()).value
+
+  /**
+   * Returns the name associated with the specified key codepoint.
+   * @throws NoSuchElementException if the key is not found.
+   */
+  fun getName(key: Int): String = (symbols[key] ?: throw NoSuchElementException()).name
+
+  /**
+   * Returns the drawable associated with the specified key codepoint.
+   * @throws NoSuchElementException if the key is not found.
+   */
+  fun getDrawable(key: Int): Drawable = (symbols[key] ?: throw NoSuchElementException()).drawable
 
   private fun getColors(arrayResId: Int): List<Int> {
     val typedArray = context.resources.obtainTypedArray(arrayResId)
