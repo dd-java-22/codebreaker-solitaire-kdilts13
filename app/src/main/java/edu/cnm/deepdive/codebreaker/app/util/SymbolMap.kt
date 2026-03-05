@@ -35,19 +35,19 @@ class SymbolMap @Inject constructor(
    * Returns the color value associated with the specified key codepoint.
    * @throws NoSuchElementException if the key is not found.
    */
-  fun getColor(key: Int): Int = (symbols[key] ?: throw NoSuchElementException()).value
+  fun getColor(key: Int): Int = symbols.getValue(key).value
 
   /**
    * Returns the name associated with the specified key codepoint.
    * @throws NoSuchElementException if the key is not found.
    */
-  fun getName(key: Int): String = (symbols[key] ?: throw NoSuchElementException()).name
+  fun getName(key: Int): String = symbols.getValue(key).name
 
   /**
    * Returns the drawable associated with the specified key codepoint.
    * @throws NoSuchElementException if the key is not found.
    */
-  fun getDrawable(key: Int): Drawable = (symbols[key] ?: throw NoSuchElementException()).drawable
+  fun getDrawable(key: Int): Drawable = symbols.getValue(key).drawable
 
   private fun getColors(arrayResId: Int): List<Int> {
     val typedArray = context.resources.obtainTypedArray(arrayResId)
