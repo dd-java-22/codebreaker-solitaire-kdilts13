@@ -24,6 +24,7 @@ plugins {
     alias(libs.plugins.navigation.safeargs)
     alias(libs.plugins.schema.parser)
     alias(libs.plugins.junit)
+    alias(libs.plugins.kotlin.android)
 }
 
 android {
@@ -117,7 +118,9 @@ dependencies {
 
     // Room annotation processor, runtime library
     implementation(libs.room.runtime)
-    annotationProcessor(libs.room.compiler)
+
+    // Kotlin standard library (optional but recommended for clarity)
+    implementation(libs.kotlin)
 
     // Google Sign-in library
     implementation(libs.play.auth)
@@ -139,8 +142,6 @@ dependencies {
     androidTestImplementation(libs.junit.params)
     androidTestImplementation(libs.espresso.core)
     androidTestImplementation(libs.hilt.android.testing)
-    androidTestAnnotationProcessor(libs.hilt.compiler)
-    androidTestAnnotationProcessor(libs.hilt.android.compiler)
 
     constraints {
         implementation(libs.kotlin.jdk7) {
