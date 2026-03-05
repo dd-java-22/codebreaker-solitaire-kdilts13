@@ -34,7 +34,8 @@ public class GameFragment extends Fragment {
       @Nullable Bundle savedInstanceState) {
     binding = FragmentGameBinding.inflate(inflater, container, false);
     binding.newGame.setOnClickListener((v) -> {
-      viewModel.startGame("ABCDEF", 4); // Default pool and length
+      viewModel.startGame("ROYGBIV", 4); // Default pool and length
+      // TODO: 3/5/2026 update to get pool and length from game
       clearCurrentGuess();
     });
     binding.submit.setOnClickListener((v) -> {

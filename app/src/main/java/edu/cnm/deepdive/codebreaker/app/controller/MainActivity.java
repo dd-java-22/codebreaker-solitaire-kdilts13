@@ -26,7 +26,8 @@ public class MainActivity extends AppCompatActivity {
       .getGame()
       .observe(this, (game) -> binding.response.setText(game.toString()));
 
-    binding.tests.setOnClickListener((view) -> viewModel.startGame("ABCDEF", 6));
+    binding.tests.setOnClickListener((view) -> viewModel.startGame("ROYGBIV", 4));
+    // TODO: 3/5/2026 set length and pool from string resources
   }
 
 }
