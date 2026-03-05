@@ -15,12 +15,17 @@ import dagger.hilt.android.AndroidEntryPoint;
 import edu.cnm.deepdive.codebreaker.api.model.Game;
 import edu.cnm.deepdive.codebreaker.app.adapter.GuessAdapter;
 import edu.cnm.deepdive.codebreaker.app.databinding.FragmentGameBinding;
+import edu.cnm.deepdive.codebreaker.app.util.SymbolMap;
 import edu.cnm.deepdive.codebreaker.app.viewmodel.GameViewModel;
+import jakarta.inject.Inject;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
 @AndroidEntryPoint
 public class GameFragment extends Fragment {
+
+  @Inject
+  SymbolMap symbolMap;
 
   private FragmentGameBinding binding;
   private GameViewModel viewModel;
