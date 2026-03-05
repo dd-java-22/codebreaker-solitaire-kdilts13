@@ -17,32 +17,29 @@ class SymbolMap @Inject constructor(
   init {
     val names = context.resources.getStringArray(R.array.color_names)
     val keys = context.resources.getStringArray(R.array.color_keys)
+    val values = getColors(R.array.color_values)
+    val drawables = getDrawables(R.array.color_drawables)
 
-    val valuesTyped = context.resources.obtainTypedArray(R.array.color_values)
-    val values = mutableListOf<Int>()
-
-    for (i in 0 until valuesTyped.length()) {
-      val color = valuesTyped.getColor(i, Color.TRANSPARENT)
-      values.add(color)
+    symbols = keys.indices.associate { i ->
+      keys[i].codePointAt(0) to SymbolAttributes(values[i], names[i], drawables[i])
     }
+  }
 
-    val drawablesIds = context.resources.getIntArray(R.array.color_drawables)
-    val drawables = mutableListOf<Drawable>()
-
-    for (i in 0 until drawablesIds.size) {
-      val drawable = ContextCompat.getDrawable(context, drawablesIds[i]) as Drawable
-      drawables.add(drawable)
+  private fun getColors(arrayResId: Int): List<Int> {
+    val typedArray = context.resources.obtainTypedArray(arrayResId)
+    return try {
+      List(typedArray.length()) { i -> typedArray.getColor(i, Color.TRANSPARENT) }
+    } finally {
+      typedArray.recycle()
     }
+  }
 
-    symbols = keys
-      .zip(names) { key, name -> key to name }
-      .zip(values) { (key, name), value -> Triple(key, name, value) }
-      .zip(drawables) { (key, name, value), drawable ->
-        key.codePointAt(0) to SymbolAttributes(value, name, drawable)
-      }
-      .toMap()
-
-    valuesTyped.recycle()
+  private fun getDrawables(arrayResId: Int): List<Drawable> {
+    val ids = context.resources.getIntArray(arrayResId)
+    return ids.map { id ->
+      ContextCompat.getDrawable(context, id)
+        ?: throw IllegalArgumentException("Drawable resource not found")
+    }
   }
 
   private data class SymbolAttributes(
