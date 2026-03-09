@@ -16,81 +16,80 @@ public class GameViewModel extends ViewModel {
 
   private static final String TAG = GameViewModel.class.getSimpleName();
 
-  private final CodebreakerService service;
-
+  private final CodebreakerService gameService;
   private final MutableLiveData<Game> game;
   private final MutableLiveData<Guess> guess;
-  private final MutableLiveData<Throwable> error;
   private final LiveData<Boolean> solved;
+  private final MutableLiveData<Throwable> error;
 
   @Inject
-  GameViewModel(CodebreakerService service) {
-    this.service = service;
-
+  GameViewModel(CodebreakerService gameService) {
+    this.gameService = gameService;
     game = new MutableLiveData<>();
     guess = new MutableLiveData<>();
+    solved = Transformations.distinctUntilChanged(Transformations.map(game, Game::getSolved));
     error = new MutableLiveData<>();
-
-    solved = Transformations.distinctUntilChanged(
-      Transformations.map(
-        game,
-        Game::getSolved
-      )
-    );
   }
 
   public void startGame(String pool, int length) {
-    Game game = new Game().pool(pool).length(length);
-
-    service.startGame(game)
-      .thenAccept(this.game::postValue)
-      .exceptionally(this::postThrowable);
+    Game game = new Game()
+        .pool(pool)
+        .length(length);
+    gameService.startGame(game)
+        .thenAccept(this.game::postValue)
+        .exceptionally(this::postThrowable);
   }
 
-  public void getGame(String gameId) {
-    service.getGame(gameId)
-      .thenAccept(this.game::postValue)
-      .exceptionally(this::postThrowable);
+  public void fetchGame(String gameId) {
+    gameService
+        .getGame(gameId)
+        .thenAccept(this.game::postValue)
+        .exceptionally(this::postThrowable);
+  }
+
+  public void deleteGame(String gameId) {
+    gameService
+        .deleteGame(gameId)
+        .exceptionally(this::postThrowable);
   }
 
   public void deleteGame() {
     Game game = this.game.getValue();
     this.game.setValue(null);
-
     if (game != null) {
-      service.deleteGame(game.getId())
-        .exceptionally(this::postThrowable);
+      //noinspection DataFlowIssue
+      gameService
+          .deleteGame(game.getId())
+          .exceptionally(this::postThrowable);
     }
   }
 
-  public void getGuess(String guessId) {
+  @SuppressWarnings("DataFlowIssue")
+  public void submitGuess(String text) {
+    Guess guess = new Guess().text(text);
     Game game = this.game.getValue();
-
-    //noinspection DataFlowIssue
-    service.getGuess(game.getId(), guessId)
-      .thenAccept(this.guess::postValue)
-      .exceptionally(this::postThrowable);
+    gameService
+        .submitGuess(game, guess)
+        .thenApply((g) -> {
+          this.guess.postValue(g);
+          return g;
+        })
+        .thenAccept((g) -> {
+          if (Boolean.TRUE.equals(g.getSolution())) {
+            fetchGame(game.getId());
+          } else {
+            game.getGuesses().add(g);
+            this.game.postValue(game);
+          }
+        });
   }
 
-  @SuppressWarnings("DataFlowIssue")
-  public void submitGuess(String guessText) {
-    Guess guess = new Guess().text(guessText);
-    Game game = this.game.getValue();
-
-    service.submitGuess(game, guess)
-      .thenApply(g -> {
-        this.guess.postValue(g);
-        return g;
-      })
-      .thenAccept(g -> {
-        if (Boolean.TRUE.equals(g.getSolution())) {
-          getGame(game.getId());
-        } else {
-          game.getGuesses().add(g);
-          this.game.postValue(game);
-        }
-      })
-      .exceptionally(this::postThrowable);
+  public void fetchGuess(String guessId) {
+    //noinspection DataFlowIssue
+    gameService
+        .getGuess(game.getValue().getId(), guessId)
+        .thenAccept(guess::postValue)
+        .exceptionally(this::postThrowable);
   }
 
   public LiveData<Game> getGame() {
@@ -101,12 +100,12 @@ public class GameViewModel extends ViewModel {
     return guess;
   }
 
-  public LiveData<Throwable> getError() {
-    return error;
-  }
-
   public LiveData<Boolean> getSolved() {
     return solved;
+  }
+
+  public LiveData<Throwable> getError() {
+    return error;
   }
 
   private Void postThrowable(Throwable throwable) {
@@ -114,4 +113,5 @@ public class GameViewModel extends ViewModel {
     error.postValue(throwable);
     return null;
   }
+
 }

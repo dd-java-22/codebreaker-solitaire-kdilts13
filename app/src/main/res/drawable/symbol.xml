@@ -1,18 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <shape
   xmlns:android="http://schemas.android.com/apk/res/android"
-  android:shape="oval"
-  >
-  <size
-    android:width="@dimen/symbol_size"
-    android:height="@dimen/symbol_size"/>
+  android:shape="oval">
 
   <solid
-    android:color="@android:color/white"/>
+    android:color="?attr/colorControlNormal" />
 
-  <stroke
-    android:width="@dimen/symbol_border_width"
-    android:color="@android:color/black"/>
-
+  <size
+    android:width="@dimen/base_drawable_size"
+    android:height="@dimen/base_drawable_size" />
 
 </shape>

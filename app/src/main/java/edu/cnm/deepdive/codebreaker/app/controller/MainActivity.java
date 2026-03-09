@@ -21,26 +21,18 @@ public class MainActivity extends AppCompatActivity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     binding = ActivityMainBinding.inflate(getLayoutInflater());
-
     EdgeToEdge.enable(this);
-
     ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), MainActivity::adjustInsets);
-
     setContentView(binding.getRoot());
   }
 
-  @NonNull
-  private static WindowInsetsCompat adjustInsets(
-    @NonNull View view, @NonNull WindowInsetsCompat insets) {
-
+  private static @NonNull WindowInsetsCompat adjustInsets(
+      @NonNull View view, @NonNull WindowInsetsCompat insets) {
     Insets bounds = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-
     MarginLayoutParams params = (MarginLayoutParams) view.getLayoutParams();
-
     params.setMargins(bounds.left, bounds.top, bounds.right, bounds.bottom);
-
     view.setLayoutParams(params);
-
     return WindowInsetsCompat.CONSUMED;
   }
+
 }
