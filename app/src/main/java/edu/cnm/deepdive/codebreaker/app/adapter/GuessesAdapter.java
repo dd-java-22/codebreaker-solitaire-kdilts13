@@ -1,9 +1,11 @@
 package edu.cnm.deepdive.codebreaker.app.adapter;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.ViewHolder;
@@ -12,6 +14,7 @@ import edu.cnm.deepdive.codebreaker.api.model.Guess;
 import edu.cnm.deepdive.codebreaker.app.R;
 import edu.cnm.deepdive.codebreaker.app.databinding.ItemGuessBinding;
 import edu.cnm.deepdive.codebreaker.app.util.SymbolMap;
+import edu.cnm.deepdive.codebreaker.app.util.SymbolMap.SymbolAttributes;
 import jakarta.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
@@ -81,7 +84,18 @@ public class GuessesAdapter extends RecyclerView.Adapter<ViewHolder> {
       binding.exactMatches.setText(String.format(matchCountFormat, guess.getExactMatches()));
       binding.nearMatches.setText(String.format(matchCountFormat, guess.getNearMatches()));
 
-      // TODO: 3/9/2026 populate binding.symbols linear layout with the appropriate symbols
+      binding.symbols.removeAllViews();
+      guess.getText()
+          .codePoints()
+          .forEach((codePoint) -> {
+            ImageView symbolControl = (ImageView) inflater.inflate(R.layout.item_guess_symbol,
+                binding.symbols, false);
+            SymbolAttributes attributes = symbolMap.getAttributes(codePoint);
+            symbolControl.setContentDescription(attributes.getName());
+            symbolControl.setImageResource(attributes.getDrawableId());
+            symbolControl.setImageTintList(ColorStateList.valueOf(attributes.getColor()));
+            binding.symbols.addView(symbolControl);
+          });
     }
   }
 }
