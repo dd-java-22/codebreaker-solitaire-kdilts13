@@ -8,7 +8,7 @@
     android:title="@string/code_length_pref_title"
     android:summary="@string/code_length_pref_summary"
     app:min="@integer/code_length_pref_min"
-    app:max="@integer/code_length_pref_max"
+    android:max="@integer/code_length_pref_max"
     android:defaultValue="@integer/code_length_pref_default"
     app:showSeekBarValue="true"/>
 
