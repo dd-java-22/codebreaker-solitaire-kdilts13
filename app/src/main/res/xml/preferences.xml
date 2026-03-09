@@ -16,7 +16,7 @@
     android:key="@string/code_pool_pref_key"
     android:title="@string/code_pool_pref_title"
     android:summary="@string/code_pool_pref_summary"
-    android:entries="@array/code_pool_pref_symbol_names"
+    android:entries="@array/symbol_names"
     android:entryValues="@array/symbols"
     android:defaultValue="@array/symbols"
     />
