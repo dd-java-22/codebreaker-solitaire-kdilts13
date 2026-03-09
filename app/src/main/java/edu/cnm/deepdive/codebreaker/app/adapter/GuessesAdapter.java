@@ -3,7 +3,6 @@ package edu.cnm.deepdive.codebreaker.app.adapter;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import androidx.annotation.NonNull;
@@ -80,22 +79,34 @@ public class GuessesAdapter extends RecyclerView.Adapter<ViewHolder> {
     private void bind(int position) {
       Guess guess = guesses.get(position);
 
+      setTextContent(position, guess);
+
+      buildGuessSymbols(guess);
+    }
+
+    private void setTextContent(int position, Guess guess) {
       binding.number.setText(String.format(guessNumberFormat, position + 1));
       binding.exactMatches.setText(String.format(matchCountFormat, guess.getExactMatches()));
       binding.nearMatches.setText(String.format(matchCountFormat, guess.getNearMatches()));
+    }
 
+    private void buildGuessSymbols(Guess guess) {
       binding.symbols.removeAllViews();
       guess.getText()
-          .codePoints()
-          .forEach((codePoint) -> {
-            ImageView symbolControl = (ImageView) inflater.inflate(R.layout.item_guess_symbol,
-                binding.symbols, false);
-            SymbolAttributes attributes = symbolMap.getAttributes(codePoint);
-            symbolControl.setContentDescription(attributes.getName());
-            symbolControl.setImageResource(attributes.getDrawableId());
-            symbolControl.setImageTintList(ColorStateList.valueOf(attributes.getColor()));
-            binding.symbols.addView(symbolControl);
-          });
+        .codePoints()
+        .mapToObj(this::buildGuessSymbol)
+        .forEach(binding.symbols::addView);
+    }
+
+    @NonNull
+    private ImageView buildGuessSymbol(int codepoint) {
+      ImageView symbolView = (ImageView) inflater.inflate(R.layout.item_guess_symbol,
+        binding.symbols, false);
+      SymbolAttributes attributes = symbolMap.getAttributes(codepoint);
+      symbolView.setContentDescription(attributes.getName());
+      symbolView.setImageResource(attributes.getDrawableId());
+      symbolView.setImageTintList(ColorStateList.valueOf(attributes.getColor()));
+      return symbolView;
     }
   }
 }
