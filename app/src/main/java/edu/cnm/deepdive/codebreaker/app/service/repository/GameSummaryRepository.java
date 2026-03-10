@@ -11,6 +11,8 @@ public interface GameSummaryRepository {
 
   CompletableFuture<Void> summarize(Game game);
 
+  CompletableFuture<GameSummary> getByExternalKey(String externalKey);
+
   CompletableFuture<Integer> remove(GameSummary gameSummary);
 
   CompletableFuture<Integer> removeAll(Collection<GameSummary> summaries);
@@ -18,5 +20,4 @@ public interface GameSummaryRepository {
   LiveData<List<GameSummary>> selectInProgress();
 
   LiveData<List<GameSummary>> selectCompleted(int poolSize, int codeLength);
-
 }

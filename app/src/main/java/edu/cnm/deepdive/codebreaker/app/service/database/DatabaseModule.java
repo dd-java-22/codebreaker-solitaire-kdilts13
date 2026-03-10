@@ -1,6 +1,7 @@
 package edu.cnm.deepdive.codebreaker.app.service.database;
 
 import android.app.Application;
+import android.content.Context;
 import androidx.room.Room;
 import dagger.Module;
 import dagger.Provides;
@@ -16,8 +17,8 @@ public class DatabaseModule {
 
   @Provides
   @Singleton
-  CodebreakerDatabase provideDatabase(@ApplicationContext Application application) {
-    return Room.databaseBuilder(application, CodebreakerDatabase.class,
+  CodebreakerDatabase provideDatabase(@ApplicationContext Context context) {
+    return Room.databaseBuilder(context, CodebreakerDatabase.class,
       CodebreakerDatabase.DATABASE_NAME).build();
   }
 

@@ -1,5 +1,6 @@
 package edu.cnm.deepdive.codebreaker.app.service;
 
+import dagger.Binds;
 import dagger.Module;
 import dagger.Provides;
 import dagger.hilt.InstallIn;
@@ -17,4 +18,11 @@ public class ServiceModule {
     return CodebreakerService.getInstance();
   }
 
+  @Module
+  @InstallIn(SingletonComponent.class)
+  public interface BindsModule {
+
+    @Binds
+    GameService bindGameService(GameServiceImpl implementation);
+  }
 }

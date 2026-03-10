@@ -125,6 +125,7 @@ dependencies {
 
     // Room annotation processor, runtime library
     implementation(libs.room.runtime)
+    annotationProcessor(libs.room.compiler)
 
     // Kotlin standard library (optional but recommended for clarity)
     implementation(libs.kotlin)
