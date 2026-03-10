@@ -47,11 +47,24 @@ public class GameServiceImpl implements GameService {
 
   @Override
   public CompletableFuture<Guess> submitGuess(Game game, Guess guess) {
-    return service.submitGuess(game, guess);
+    return service.submitGuess(game, guess)
+      .thenCompose((Guess processedGuess) -> updateSummaryForGuess(game, processedGuess));
   }
 
   @Override
   public CompletableFuture<Guess> getGuess(String gameId, String guessId) {
     return service.getGuess(gameId, guessId);
+  }
+
+  private CompletableFuture<Guess> updateSummaryForGuess(Game game, Guess processedGuess) {
+    if (Boolean.TRUE.equals(processedGuess.getSolution())) {
+      return CompletableFuture.completedFuture(processedGuess);
+    } else {
+      game.getGuesses().add(processedGuess);
+
+      return repository
+        .summarize(game)
+        .thenApply(ignored -> processedGuess);
+    }
   }
 }

@@ -109,7 +109,6 @@ public class GameViewModel extends ViewModel {
         if (Boolean.TRUE.equals(g.getSolution())) {
           fetchGame(game.getId());
         } else {
-          game.getGuesses().add(g);
           this.game.postValue(game);
         }
       });
