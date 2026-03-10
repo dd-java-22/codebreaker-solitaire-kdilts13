@@ -11,6 +11,7 @@
     android:top="@dimen/guess_symbol_padding"
     android:left="@dimen/guess_symbol_padding"
     android:bottom="@dimen/guess_symbol_padding"
-    android:right="@dimen/guess_symbol_padding"/>
+    android:right="@dimen/guess_symbol_padding"
+    />
 
 </layer-list>

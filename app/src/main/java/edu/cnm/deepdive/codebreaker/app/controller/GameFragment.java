@@ -78,8 +78,6 @@ public class GameFragment extends Fragment implements MenuProvider {
     gameViewModel.getSolved().observe(lifecycleOwner, this::handleSolved);
     gameViewModel.getGuess().observe(lifecycleOwner, this::handleGuess);
     gameViewModel.getError().observe(lifecycleOwner, this::handleError);
-
-    gameViewModel.startGame();
   }
 
   @Override
@@ -122,6 +120,18 @@ public class GameFragment extends Fragment implements MenuProvider {
     updateGuessList(game);
     buildGuessControls(game, lastGuess(game));
     buildPaletteControls(game);
+
+    boolean inProgress = !Boolean.TRUE.equals(game.getSolved());
+
+    IntStream.range(0, binding.guessControls.getChildCount())
+      .mapToObj(binding.guessControls::getChildAt)
+      .forEach(view -> view.setEnabled(inProgress));
+
+    IntStream.range(0, binding.palette.getChildCount())
+      .mapToObj(binding.palette::getChildAt)
+      .forEach(view -> view.setEnabled(inProgress));
+
+    binding.submit.setEnabled(inProgress && isGuessComplete());
   }
 
   private void handleSolved(Boolean solved) {
@@ -180,8 +190,6 @@ public class GameFragment extends Fragment implements MenuProvider {
     if (binding.guessControls.getChildCount() > 0) {
       ((RadioButton) binding.guessControls.getChildAt(0)).setChecked(true);
     }
-
-    binding.submit.setEnabled(isGuessComplete());
   }
 
   private void buildPaletteControls(Game game) {
