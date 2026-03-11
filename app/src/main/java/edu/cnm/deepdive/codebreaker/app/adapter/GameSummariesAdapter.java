@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 import dagger.hilt.android.qualifiers.ActivityContext;
+import dagger.hilt.android.scopes.FragmentScoped;
 import edu.cnm.deepdive.codebreaker.app.databinding.ItemGameSummaryBinding;
 import edu.cnm.deepdive.codebreaker.app.model.GameSummary;
 import jakarta.inject.Inject;
@@ -17,6 +18,7 @@ import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.List;
 
+@FragmentScoped
 public class GameSummariesAdapter extends RecyclerView.Adapter<ViewHolder> {
 
   private final LayoutInflater inflater;
@@ -67,7 +69,12 @@ public class GameSummariesAdapter extends RecyclerView.Adapter<ViewHolder> {
       GameSummary summary = summaries.get(position);
 
       Instant lastPlayed = summary.getLastPlayed();
-      String lastPlayedText = (lastPlayed != null) ? formatter.format(lastPlayed) : "";
+
+      String lastPlayedText = (lastPlayed != null) ? formatter.format(lastPlayed) : formatter.format(summary.getStarted());
+
+      if (position % 2 == 0) {
+        binding.header.setBackgroundColor(0xFFFF0000);
+      }
 
       binding.lastPlayed.setText(lastPlayedText);
       binding.poolSize.setText(String.valueOf(summary.getPoolSize()));
