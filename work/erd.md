@@ -1,0 +1,14 @@
+```mermaid
+game {
+  int game_id PK "Primary Key"
+  String external_id UK "Unique Key, non-null"
+  String pool "Code pool, non-null"
+  int length IX2 "Code length, non-null"
+  Instant started IX1 "Date-time Started, non-null"
+  int guess_count IX2 "Number of guesses"
+  boolean solved IX1 "Solved Flag, non-null"
+  Instant last_played IX1 "Date-time of last guess"
+  int exact_matches "Exact Matches in last guess"
+  int near_matches "Near Matches in last guess"
+}
+```
