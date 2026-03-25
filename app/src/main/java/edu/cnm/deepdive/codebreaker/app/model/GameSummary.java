@@ -8,38 +8,35 @@ import androidx.room.PrimaryKey;
 import java.time.Instant;
 
 @Entity(
-    tableName = "game",
+    tableName = "game_summary",
     indices = {
-        @Index(value = {"external_id"}, unique = true),
-        @Index(value = {"started", "solved", "last_played"}),
-        @Index(value = {"length", "guess_count"})
+        @Index(value = "external_key", unique = true),
+        @Index({"solved", "started", "last_played"}),
+        @Index({"solved", "pool_size", "code_length", "guess_count", "last_played", "started"})
     }
 )
-public class Game {
+public class GameSummary {
 
   @PrimaryKey(autoGenerate = true)
-  @ColumnInfo(name = "game_id")
+  @ColumnInfo(name = "game_summary_id")
   private long id;
 
-  @NonNull
-  @ColumnInfo(name = "external_id")
-  private String externalId = "";
+  @ColumnInfo(name = "external_key")
+  private @NonNull String externalKey = "";
 
-  @NonNull
-  @ColumnInfo(name = "pool")
-  private String pool = "";
+  private @NonNull String pool = "";
 
-  @ColumnInfo(name = "length")
-  private int length;
+  @ColumnInfo(name = "pool_size")
+  private int poolSize;
 
-  @NonNull
-  @ColumnInfo(name = "started")
-  private Instant started = Instant.now();
+  @ColumnInfo(name = "code_length")
+  private int codeLength;
+
+  private @NonNull Instant started = Instant.now();
 
   @ColumnInfo(name = "guess_count")
   private int guessCount;
 
-  @ColumnInfo(name = "solved")
   private boolean solved;
 
   @ColumnInfo(name = "last_played")
@@ -59,17 +56,15 @@ public class Game {
     this.id = id;
   }
 
-  @NonNull
-  public String getExternalId() {
-    return externalId;
+  public @NonNull String getExternalKey() {
+    return externalKey;
   }
 
-  public void setExternalId(@NonNull String externalId) {
-    this.externalId = externalId;
+  public void setExternalKey(@NonNull String externalKey) {
+    this.externalKey = externalKey;
   }
 
-  @NonNull
-  public String getPool() {
+  public @NonNull String getPool() {
     return pool;
   }
 
@@ -77,16 +72,23 @@ public class Game {
     this.pool = pool;
   }
 
-  public int getLength() {
-    return length;
+  public int getPoolSize() {
+    return poolSize;
   }
 
-  public void setLength(int length) {
-    this.length = length;
+  public void setPoolSize(int poolSize) {
+    this.poolSize = poolSize;
   }
 
-  @NonNull
-  public Instant getStarted() {
+  public int getCodeLength() {
+    return codeLength;
+  }
+
+  public void setCodeLength(int codeLength) {
+    this.codeLength = codeLength;
+  }
+
+  public @NonNull Instant getStarted() {
     return started;
   }
 
